@@ -17,13 +17,15 @@ from python_opensky import (
 
 from . import load_fixture
 
+OPENSKY_URL = "python_opensky-network.org"
+
 
 async def test_states(
     aresponses: ResponsesMockServer,
 ) -> None:
     """Test retrieving states."""
     aresponses.add(
-        "python_opensky-network.org",
+        OPENSKY_URL,
         "/api/states/all",
         "GET",
         aresponses.Response(
@@ -64,7 +66,7 @@ async def test_new_session(
 ) -> None:
     """Test that it creates a new session if not given one."""
     aresponses.add(
-        "python_opensky-network.org",
+        OPENSKY_URL,
         "/api/states/all",
         "GET",
         aresponses.Response(
@@ -89,7 +91,7 @@ async def test_timeout(aresponses: ResponsesMockServer) -> None:
         return aresponses.Response(body="Goodmorning!")
 
     aresponses.add(
-        "python_opensky-network.org",
+        OPENSKY_URL,
         "/api/states/all",
         "GET",
         response_handler,
@@ -110,7 +112,7 @@ async def test_request_error(aresponses: ResponsesMockServer) -> None:
         raise ClientError
 
     aresponses.add(
-        "python_opensky-network.org",
+        OPENSKY_URL,
         "/api/states/all",
         "GET",
         response_handler,
@@ -128,7 +130,7 @@ async def test_unexpected_server_response(
 ) -> None:
     """Test handling a server error."""
     aresponses.add(
-        "python_opensky-network.org",
+        OPENSKY_URL,
         "/api/states/all",
         "GET",
         aresponses.Response(
