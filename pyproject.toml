@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "opensky"
+name = "python-opensky"
 version = "0.0.0"
 description = "Asynchronous Python client for Opensky API."
 authors = ["Joost Lekkerkerker <joostlek@outlook.com>"]
