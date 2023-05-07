@@ -140,13 +140,7 @@ class OpenSky:
             "category",
         ]
 
-        data = {
-            **data,
-            "states": [
-                dict(zip(keys, state))
-                for state in data["states"]
-            ]
-        }
+        data = {**data, "states": [dict(zip(keys, state)) for state in data["states"]]}
 
         return StatesResponse.parse_obj(data)
 

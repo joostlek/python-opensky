@@ -14,7 +14,7 @@ Asynchronous Python client for the OpenSky API.
 
 ## About
 
-This package allows you to request data about aircrafts
+This package allows you to request data about aircraft around the world.
 
 ## Installation
 
