@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import socket
 from dataclasses import dataclass
 from importlib import metadata
@@ -90,19 +89,6 @@ class OpenSky:
             raise OpenSkyConnectionError(msg) from exception
 
         content_type = response.headers.get("Content-Type", "")
-        if (response.status // 100) in [4, 5]:
-            contents = await response.read()
-            response.close()
-
-            if content_type == "application/json":
-                raise OpenSkyError(
-                    response.status,
-                    json.loads(contents.decode("utf8")),
-                )
-            raise OpenSkyError(
-                response.status,
-                {"message": contents.decode("utf8")},
-            )
 
         if "application/json" not in content_type:
             text = await response.text()
