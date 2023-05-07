@@ -151,4 +151,4 @@ SOFTWARE.
 [releases-shield]: https://img.shields.io/github/release/joostlek/python-opensky.svg
 [releases]: https://github.com/joostlek/python-opensky/releases
 [semver]: http://semver.org/spec/v2.0.0.html
-[pypi]: https://pypi.org/project/vehicle/
+[pypi]: https://pypi.org/project/python_opensky/
