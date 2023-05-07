@@ -19,7 +19,7 @@ This package allows you to request data about aircraft around the world.
 ## Installation
 
 ```bash
-pip install opensky
+pip install python_opensky
 ```
 
 ## Usage
@@ -27,13 +27,13 @@ pip install opensky
 ```python
 import asyncio
 
-from opensky import OpenSky, StatesResponse
+from python_opensky import OpenSky, StatesResponse
 
 
 async def main() -> None:
     """Show example of fetching all flight states."""
-    async with OpenSky() as open_sky:
-        states: StatesResponse = await open_sky.states()
+    async with OpenSky() as opensky:
+        states: StatesResponse = await opensky.states()
         print(states)
 
 

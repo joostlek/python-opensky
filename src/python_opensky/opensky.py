@@ -22,7 +22,7 @@ class OpenSky:
 
     session: ClientSession | None = None
     request_timeout: int = 10
-    api_host: str = "opensky-network.org"
+    api_host: str = "python_opensky-network.org"
     _close_session: bool = False
 
     async def _request(

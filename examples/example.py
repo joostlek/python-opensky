@@ -2,13 +2,13 @@
 
 import asyncio
 
-from opensky import OpenSky, StatesResponse
+from python_opensky import OpenSky, StatesResponse
 
 
 async def main() -> None:
     """Show example of fetching flight states from OpenSky."""
-    async with OpenSky() as open_sky:
-        states: StatesResponse = await open_sky.states()
+    async with OpenSky() as opensky:
+        states: StatesResponse = await opensky.states()
         print(states)
 
 
