@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "python-opensky"
+name = "python_opensky"
 version = "0.0.0"
 description = "Asynchronous Python client for Opensky API."
 authors = ["Joost Lekkerkerker <joostlek@outlook.com>"]
@@ -21,7 +21,7 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 packages = [
-    { include = "opensky", from = "src" },
+    { include = "python_opensky", from = "src" },
 ]
 
 [tool.poetry.dependencies]
@@ -57,7 +57,7 @@ show_missing = true
 
 [tool.coverage.run]
 plugins = ["covdefaults"]
-source = ["opensky"]
+source = ["python_opensky"]
 
 [tool.mypy]
 # Specify the target platform details in config, so your developers are
@@ -150,7 +150,7 @@ fixture-parentheses = false
 mark-parentheses = false
 
 [tool.ruff.isort]
-known-first-party = ["opensky"]
+known-first-party = ["python_opensky"]
 
 [tool.ruff.mccabe]
 max-complexity = 25

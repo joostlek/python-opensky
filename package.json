@@ -1,5 +1,5 @@
 {
-  "name": "python-opensky",
+  "name": "python_opensky",
   "version": "0.0.0",
   "private": true,
   "description": "Asynchronous Python client providing RDW vehicle information",

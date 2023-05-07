@@ -6,7 +6,7 @@ import pytest
 from aiohttp import ClientError
 from aresponses import Response, ResponsesMockServer
 
-from opensky import (
+from python_opensky import (
     AircraftCategory,
     OpenSky,
     OpenSkyConnectionError,
@@ -23,7 +23,7 @@ async def test_states(
 ) -> None:
     """Test retrieving states."""
     aresponses.add(
-        "opensky-network.org",
+        "python_opensky-network.org",
         "/api/states/all",
         "GET",
         aresponses.Response(
@@ -64,7 +64,7 @@ async def test_new_session(
 ) -> None:
     """Test that it creates a new session if not given one."""
     aresponses.add(
-        "opensky-network.org",
+        "python_opensky-network.org",
         "/api/states/all",
         "GET",
         aresponses.Response(
@@ -89,7 +89,7 @@ async def test_timeout(aresponses: ResponsesMockServer) -> None:
         return aresponses.Response(body="Goodmorning!")
 
     aresponses.add(
-        "opensky-network.org",
+        "python_opensky-network.org",
         "/api/states/all",
         "GET",
         response_handler,
@@ -110,7 +110,7 @@ async def test_request_error(aresponses: ResponsesMockServer) -> None:
         raise ClientError
 
     aresponses.add(
-        "opensky-network.org",
+        "python_opensky-network.org",
         "/api/states/all",
         "GET",
         response_handler,
@@ -128,7 +128,7 @@ async def test_unexpected_server_response(
 ) -> None:
     """Test handling a server error."""
     aresponses.add(
-        "opensky-network.org",
+        "python_opensky-network.org",
         "/api/states/all",
         "GET",
         aresponses.Response(
