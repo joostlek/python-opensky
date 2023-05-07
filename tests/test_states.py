@@ -1,5 +1,4 @@
 """Tests for the OpenSky Library."""
-# pylint: disable=protected-access
 import asyncio
 
 import aiohttp
