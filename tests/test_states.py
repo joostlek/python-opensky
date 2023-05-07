@@ -17,8 +17,8 @@ from python_opensky import (
 
 from . import load_fixture
 
-
 OPENSKY_URL = "python_opensky-network.org"
+
 
 async def test_states(
     aresponses: ResponsesMockServer,
