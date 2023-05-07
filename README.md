@@ -8,7 +8,7 @@
 
 [![Build Status][build-shield]][build]
 [![Code Coverage][codecov-shield]][codecov]
-[![Code Quality][code-quality-shield]][code-quality]
+[![Code Smells][code-smells]][sonarcloud]
 
 Asynchronous Python client for the OpenSky API.
 
@@ -19,7 +19,7 @@ This package allows you to request data about aircraft around the world.
 ## Installation
 
 ```bash
-pip install python_opensky
+pip install python-opensky
 ```
 
 ## Usage
@@ -129,10 +129,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-[build-shield]: https://github.com/joostlek/python-opensky/workflows/Continuous%20Integration/badge.svg
+[build-shield]: https://github.com/joostlek/python-opensky/actions/workflows/tests.yaml/badge.svg
 [build]: https://github.com/joostlek/python-opensky/actions
-[code-quality-shield]: https://img.shields.io/lgtm/grade/python/g/joostlek/python-opensky.svg?logo=lgtm&logoWidth=18
-[code-quality]: https://lgtm.com/projects/g/joostlek/python-opensky/context:python
+[code-smells]: https://sonarcloud.io/api/project_badges/measure?project=joostlek_python-opensky&metric=code_smells
 [codecov-shield]: https://codecov.io/gh/joostlek/python-opensky/branch/master/graph/badge.svg
 [codecov]: https://codecov.io/gh/joostlek/python-opensky
 [commits-shield]: https://img.shields.io/github/commit-activity/y/joostlek/python-opensky.svg
@@ -147,8 +146,9 @@ SOFTWARE.
 [poetry]: https://python-poetry.org
 [pre-commit]: https://pre-commit.com/
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-experimental-yellow.svg
-[python-versions-shield]: https://img.shields.io/pypi/pyversions/opensky
+[python-versions-shield]: https://img.shields.io/pypi/pyversions/python-opensky
 [releases-shield]: https://img.shields.io/github/release/joostlek/python-opensky.svg
 [releases]: https://github.com/joostlek/python-opensky/releases
 [semver]: http://semver.org/spec/v2.0.0.html
-[pypi]: https://pypi.org/project/python_opensky/
+[sonarcloud]: https://sonarcloud.io/summary/new_code?id=joostlek_python-opensky
+[pypi]: https://pypi.org/project/python-opensky/
