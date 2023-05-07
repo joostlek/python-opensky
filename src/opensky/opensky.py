@@ -32,22 +32,26 @@ class OpenSky:
         *,
         data: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """Handle a request to a RDW open data (Socrata).
+        """Handle a request to OpenSky.
+
         A generic method for sending/handling HTTP requests done against
-        the public RDW data.
+        OpenSky.
+
         Args:
         ----
-            dataset: Identifier for the Socrata dataset to query.
-            data: Dictionary of data to send to the Socrata API.
+            uri: the path to call.
+            data: the query parameters to add.
+
         Returns:
         -------
             A Python dictionary (JSON decoded) with the response from
             the API.
+
         Raises:
         ------
-            RDWConnectionError: An error occurred while communicating with
-                the Socrata API.
-            RDWError: Received an unexpected response from the Socrata API.
+            OpenSkyConnectionError: An error occurred while communicating with
+                the OpenSky API.
+            OpenSkyrror: Received an unexpected response from the OpenSky API.
         """
         version = metadata.version(__package__)
         url = URL.build(
@@ -140,7 +144,7 @@ class OpenSky:
             "category",
         ]
 
-        data = {**data, "states": [dict(zip(keys, state)) for state in data["states"]]}
+        data = {**data, "states": [dict(zip(keys, state, strict=True)) for state in data["states"]]}
 
         return StatesResponse.parse_obj(data)
 
@@ -151,6 +155,7 @@ class OpenSky:
 
     async def __aenter__(self) -> OpenSky:
         """Async enter.
+
         Returns
         -------
             The OpenSky object.
@@ -159,6 +164,7 @@ class OpenSky:
 
     async def __aexit__(self, *_exc_info: Any) -> None:
         """Async exit.
+
         Args:
         ----
             _exc_info: Exec type.

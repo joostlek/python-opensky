@@ -1,10 +1,7 @@
 """Asynchronous Python client for the OpenSky API."""
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import date, datetime, timezone
-
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
 from .const import AircraftCategory, PositionSource
 
@@ -18,12 +15,14 @@ class StatesResponse(BaseModel):
 
 class StateVector(BaseModel):
     """Represents the state of a vehicle at a particular time.
+
     Attributes
     ----------
     icao24: ICAO24 address of the transmitter in hex string representation.
     callsign: Callsign of the vehicle.
     origin_country: Inferred through the ICAO24 address.
-    time_position: Seconds since epoch of last position report. Can be None if there was no position report received by OpenSky within 15s before.
+    time_position: Seconds since epoch of last position report. Can be None if there
+     was no position report received by OpenSky within 15s before.
     last_contact: Seconds since epoch of last received message from this transponder.
     longitude: In ellipsoidal coordinates (WGS-84) and degrees.
     latitude: In ellipsoidal coordinates (WGS-84) and degrees.
@@ -32,7 +31,8 @@ class StateVector(BaseModel):
     velocity: Over ground in m/s.
     true_track: In decimal degrees (0 is north).
     vertical_rate: In m/s, incline is positive, decline negative.
-    sensors: Serial numbers of sensors which received messages from the vehicle within the validity period of this state vector.
+    sensors: Serial numbers of sensors which received messages from the vehicle within
+     the validity period of this state vector.
     barometric_altitude: Barometric altitude in meters.
     transponder_code: Transponder code aka Squawk.
     special_purpose_indicator: Special purpose indicator.
