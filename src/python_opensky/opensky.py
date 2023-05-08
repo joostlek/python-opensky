@@ -107,7 +107,7 @@ class OpenSky:
 
     async def states(self, bounding_box: BoundingBox | None = None) -> StatesResponse:
         """Retrieve state vectors for a given time."""
-        credit_costs = 4
+        credit_cost = 4
         params = {
             "time": 0,
             "extended": "true",
@@ -119,7 +119,7 @@ class OpenSky:
             params[MAX_LATITUDE] = bounding_box.max_latitude
             params[MIN_LONGITUDE] = bounding_box.min_longitude
             params[MAX_LONGITUDE] = bounding_box.max_longitude
-            credit_costs = self.calculate_credit_costs(bounding_box)
+            credit_cost = self.calculate_credit_costs(bounding_box)
 
         data = await self._request("states/all", data=params)
 
@@ -149,7 +149,7 @@ class OpenSky:
             "states": [dict(zip(keys, state, strict=True)) for state in data["states"]],
         }
 
-        self._register_credit_usage(credit_costs)
+        self._register_credit_usage(credit_cost)
 
         return StatesResponse.parse_obj(data)
 
