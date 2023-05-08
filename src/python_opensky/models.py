@@ -1,9 +1,12 @@
 """Asynchronous Python client for the OpenSky API."""
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from pydantic import BaseModel, Field
 
 from .const import AircraftCategory, PositionSource
+from .exceptions import OpenSkyCoordinateError
 
 
 class StatesResponse(BaseModel):
@@ -60,15 +63,34 @@ class StateVector(BaseModel):
     category: AircraftCategory = Field(...)
 
 
-class BoundingBox(BaseModel):
+@dataclass
+class BoundingBox:
     """Bounding box for retrieving state vectors."""
 
-    min_latitude: float = Field(...)
-    max_latitude: float = Field(...)
-    min_longitude: float = Field(...)
-    max_longitude: float = Field(...)
+    min_latitude: float
+    max_latitude: float
+    min_longitude: float
+    max_longitude: float
+
+    def validate(self) -> None:
+        """Validate if the latitude and longitude are correct."""
+        self._check_latitude(self.min_latitude)
+        self._check_latitude(self.max_latitude)
+        self._check_longitude(self.min_longitude)
+        self._check_longitude(self.max_longitude)
+
+    @staticmethod
+    def _check_latitude(degrees: float) -> None:
+        if degrees < -90 or degrees > 90:
+            msg = f"Invalid latitude {degrees}! Must be in [-90, 90]."
+            raise OpenSkyCoordinateError(msg)
+
+    @staticmethod
+    def _check_longitude(degrees: float) -> None:
+        if degrees < -180 or degrees > 180:
+            msg = f"Invalid longitude {degrees}! Must be in [-180, 180]."
+            raise OpenSkyCoordinateError(msg)
 
 
 StatesResponse.update_forward_refs()
 StateVector.update_forward_refs()
-BoundingBox.update_forward_refs()
