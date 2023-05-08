@@ -11,3 +11,7 @@ class OpenSkyConnectionError(OpenSkyError):
 
 class OpenSkyCoordinateError(OpenSkyError):
     """OpenSky coordinate exception."""
+
+
+class OpenSkyUnauthenticatedError(OpenSkyError):
+    """OpenSky unauthenticated exception."""

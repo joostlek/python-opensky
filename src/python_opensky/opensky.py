@@ -9,12 +9,16 @@ from importlib import metadata
 from typing import Any, cast
 
 import async_timeout
-from aiohttp import ClientError, ClientResponseError, ClientSession
+from aiohttp import BasicAuth, ClientError, ClientResponseError, ClientSession
 from aiohttp.hdrs import METH_GET
 from yarl import URL
 
 from .const import MAX_LATITUDE, MAX_LONGITUDE, MIN_LATITUDE, MIN_LONGITUDE
-from .exceptions import OpenSkyConnectionError, OpenSkyError
+from .exceptions import (
+    OpenSkyConnectionError,
+    OpenSkyError,
+    OpenSkyUnauthenticatedError,
+)
 from .models import BoundingBox, StatesResponse
 
 
@@ -24,11 +28,22 @@ class OpenSky:
 
     session: ClientSession | None = None
     request_timeout: int = 10
-    api_host: str = "python_opensky-network.org"
+    api_host: str = "opensky-network.org"
     opensky_credits: int = 400
     timezone = timezone.utc
     _close_session: bool = False
     _credit_usage: dict[datetime, int] = field(default_factory=dict)
+    _auth: BasicAuth | None = None
+    _contributing_user: bool = False
+
+    def authenticate(self, auth: BasicAuth, *, contributing_user: bool = False) -> None:
+        """Authenticate the user."""
+        self._auth = auth
+        self._contributing_user = contributing_user
+        if contributing_user:
+            self.opensky_credits = 8000
+        else:
+            self.opensky_credits = 4000
 
     async def _request(
         self,
@@ -79,6 +94,7 @@ class OpenSky:
                 response = await self.session.request(
                     METH_GET,
                     url.with_query(data),
+                    auth=self._auth,
                     headers=headers,
                 )
                 response.raise_for_status()
@@ -105,7 +121,10 @@ class OpenSky:
 
         return cast(dict[str, Any], await response.json())
 
-    async def states(self, bounding_box: BoundingBox | None = None) -> StatesResponse:
+    async def get_states(
+        self,
+        bounding_box: BoundingBox | None = None,
+    ) -> StatesResponse:
         """Retrieve state vectors for a given time."""
         credit_cost = 4
         params = {
@@ -129,6 +148,23 @@ class OpenSky:
         }
 
         self._register_credit_usage(credit_cost)
+
+        return StatesResponse.parse_obj(data)
+
+    async def get_own_states(self, time: int = 0) -> StatesResponse:
+        """Retrieve state vectors from your own sensors."""
+        if not self._auth:
+            raise OpenSkyUnauthenticatedError
+        params = {
+            "time": time,
+        }
+
+        data = await self._request("states/own", data=params)
+
+        data = {
+            **data,
+            "states": [self._convert_state(state) for state in data["states"]],
+        }
 
         return StatesResponse.parse_obj(data)
 
