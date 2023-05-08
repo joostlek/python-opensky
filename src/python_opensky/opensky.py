@@ -123,30 +123,9 @@ class OpenSky:
 
         data = await self._request("states/all", data=params)
 
-        keys = [
-            "icao24",
-            "callsign",
-            "origin_country",
-            "time_position",
-            "last_contact",
-            "longitude",
-            "latitude",
-            "baro_altitude",
-            "on_ground",
-            "velocity",
-            "true_track",
-            "vertical_rate",
-            "sensors",
-            "geo_altitude",
-            "squawk",
-            "spi",
-            "position_source",
-            "category",
-        ]
-
         data = {
             **data,
-            "states": [dict(zip(keys, state, strict=True)) for state in data["states"]],
+            "states": [self._convert_state(state) for state in data["states"]],
         }
 
         self._register_credit_usage(credit_cost)
@@ -179,6 +158,31 @@ class OpenSky:
             if now - timedelta(hours=24) <= k <= now
         )
         return self.opensky_credits - used_credits
+
+    @staticmethod
+    def _convert_state(state: list[Any]) -> dict[str, Any]:
+        keys = [
+            "icao24",
+            "callsign",
+            "origin_country",
+            "time_position",
+            "last_contact",
+            "longitude",
+            "latitude",
+            "baro_altitude",
+            "on_ground",
+            "velocity",
+            "true_track",
+            "vertical_rate",
+            "sensors",
+            "geo_altitude",
+            "squawk",
+            "spi",
+            "position_source",
+            "category",
+        ]
+
+        return dict(zip(keys, state, strict=True))
 
     async def close(self) -> None:
         """Close open client session."""
