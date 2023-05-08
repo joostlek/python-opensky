@@ -3,7 +3,8 @@ from __future__ import annotations
 
 import asyncio
 import socket
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta, timezone
 from importlib import metadata
 from typing import Any, cast
 
@@ -24,7 +25,10 @@ class OpenSky:
     session: ClientSession | None = None
     request_timeout: int = 10
     api_host: str = "python_opensky-network.org"
+    opensky_credits: int = 400
+    timezone = timezone.utc
     _close_session: bool = False
+    _credit_usage: dict[datetime, int] = field(default_factory=dict)
 
     async def _request(
         self,
@@ -103,6 +107,7 @@ class OpenSky:
 
     async def states(self, bounding_box: BoundingBox | None = None) -> StatesResponse:
         """Retrieve state vectors for a given time."""
+        credit_costs = 4
         params = {
             "time": 0,
             "extended": "true",
@@ -114,6 +119,7 @@ class OpenSky:
             params[MAX_LATITUDE] = bounding_box.max_latitude
             params[MIN_LONGITUDE] = bounding_box.min_longitude
             params[MAX_LONGITUDE] = bounding_box.max_longitude
+            credit_costs = self.calculate_credit_costs(bounding_box)
 
         data = await self._request("states/all", data=params)
 
@@ -143,7 +149,36 @@ class OpenSky:
             "states": [dict(zip(keys, state, strict=True)) for state in data["states"]],
         }
 
+        self._register_credit_usage(credit_costs)
+
         return StatesResponse.parse_obj(data)
+
+    @staticmethod
+    def calculate_credit_costs(bounding_box: BoundingBox) -> int:
+        """Calculate the amount of credits a request costs."""
+        latitude_degrees = bounding_box.max_latitude - bounding_box.min_latitude
+        longitude_degrees = bounding_box.max_longitude - bounding_box.min_longitude
+        area = latitude_degrees * longitude_degrees
+        if area < 25:
+            return 1
+        if area < 100:
+            return 2
+        if area < 400:
+            return 3
+        return 4
+
+    def _register_credit_usage(self, opensky_credits: int) -> None:
+        self._credit_usage[datetime.now(self.timezone)] = opensky_credits
+
+    def remaining_credits(self) -> int:
+        """Calculate the remaining opensky credits."""
+        now = datetime.now(self.timezone)
+        used_credits = sum(
+            v
+            for k, v in self._credit_usage.items()
+            if now - timedelta(hours=24) <= k <= now
+        )
+        return self.opensky_credits - used_credits
 
     async def close(self) -> None:
         """Close open client session."""
