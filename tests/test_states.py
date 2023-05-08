@@ -89,6 +89,27 @@ async def test_states_with_bounding_box(
         await opensky.close()
 
 
+async def test_credit_usage(
+    aresponses: ResponsesMockServer,
+) -> None:
+    """Test credit usage."""
+    aresponses.add(
+        OPENSKY_URL,
+        "/api/states/all",
+        "GET",
+        aresponses.Response(
+            status=200,
+            headers={"Content-Type": "application/json"},
+            text=load_fixture("states.json"),
+        ),
+    )
+    async with aiohttp.ClientSession() as session:
+        opensky = OpenSky(session=session)
+        await opensky.states()
+        assert opensky.remaining_credits() == 396
+        await opensky.close()
+
+
 async def test_new_session(
     aresponses: ResponsesMockServer,
 ) -> None:
@@ -173,3 +194,36 @@ async def test_unexpected_server_response(
         with pytest.raises(OpenSkyError):
             assert await opensky.states()
         await opensky.close()
+
+
+async def test_calculating_credit_usage() -> None:
+    """Test calculating credit usage."""
+    opensky = OpenSky()
+    bounding_box = BoundingBox(
+        min_latitude=49.7,
+        max_latitude=50.5,
+        min_longitude=3.2,
+        max_longitude=4.6,
+    )
+    assert opensky.calculate_credit_costs(bounding_box) == 1
+    bounding_box = BoundingBox(
+        min_latitude=46.5,
+        max_latitude=49.9,
+        min_longitude=-1.4,
+        max_longitude=6.8,
+    )
+    assert opensky.calculate_credit_costs(bounding_box) == 2
+    bounding_box = BoundingBox(
+        min_latitude=42.2,
+        max_latitude=49.8,
+        min_longitude=-4.7,
+        max_longitude=10.9,
+    )
+    assert opensky.calculate_credit_costs(bounding_box) == 3
+    bounding_box = BoundingBox(
+        min_latitude=42.2,
+        max_latitude=49.8,
+        min_longitude=-80.7,
+        max_longitude=10.9,
+    )
+    assert opensky.calculate_credit_costs(bounding_box) == 4

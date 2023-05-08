@@ -5,6 +5,7 @@ name: Linting
 on:
   push:
   pull_request:
+    types: [opened, reopened]
   workflow_dispatch:
 
 env:
