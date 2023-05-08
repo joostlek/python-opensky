@@ -12,8 +12,9 @@ from aiohttp import ClientError, ClientResponseError, ClientSession
 from aiohttp.hdrs import METH_GET
 from yarl import URL
 
+from .const import MAX_LATITUDE, MAX_LONGITUDE, MIN_LATITUDE, MIN_LONGITUDE
 from .exceptions import OpenSkyConnectionError, OpenSkyError
-from .models import StatesResponse
+from .models import BoundingBox, StatesResponse
 
 
 @dataclass
@@ -100,12 +101,19 @@ class OpenSky:
 
         return cast(dict[str, Any], await response.json())
 
-    async def states(self) -> StatesResponse:
+    async def states(self, bounding_box: BoundingBox | None = None) -> StatesResponse:
         """Retrieve state vectors for a given time."""
         params = {
             "time": 0,
             "extended": "true",
         }
+
+        if bounding_box:
+            bounding_box.validate()
+            params[MIN_LATITUDE] = bounding_box.min_latitude
+            params[MAX_LATITUDE] = bounding_box.max_latitude
+            params[MIN_LONGITUDE] = bounding_box.min_longitude
+            params[MAX_LONGITUDE] = bounding_box.max_longitude
 
         data = await self._request("states/all", data=params)
 

@@ -35,3 +35,9 @@ class AircraftCategory(int, Enum):
     POINT_OBSTACLE = 18
     CLUSTER_OBSTACLE = 19
     LINE_OBSTACLE = 20
+
+
+MIN_LATITUDE = "lamin"
+MAX_LATITUDE = "lamax"
+MIN_LONGITUDE = "lomin"
+MAX_LONGITUDE = "lomax"

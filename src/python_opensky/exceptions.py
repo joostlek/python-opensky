@@ -7,3 +7,7 @@ class OpenSkyError(Exception):
 
 class OpenSkyConnectionError(OpenSkyError):
     """OpenSky connection exception."""
+
+
+class OpenSkyCoordinateError(OpenSkyError):
+    """OpenSky coordinate exception."""

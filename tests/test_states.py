@@ -8,6 +8,7 @@ from aresponses import Response, ResponsesMockServer
 
 from python_opensky import (
     AircraftCategory,
+    BoundingBox,
     OpenSky,
     OpenSkyConnectionError,
     OpenSkyError,
@@ -58,6 +59,33 @@ async def test_states(
         assert not first_aircraft.special_purpose_indicator
         assert first_aircraft.position_source == PositionSource.ADSB
         assert first_aircraft.category == AircraftCategory.LARGE
+        await opensky.close()
+
+
+async def test_states_with_bounding_box(
+    aresponses: ResponsesMockServer,
+) -> None:
+    """Test retrieving states."""
+    aresponses.add(
+        OPENSKY_URL,
+        "/api/states/all?time=0&extended=true&lamin=0&lamax=0&lomin=0&lomax=0",
+        "GET",
+        aresponses.Response(
+            status=200,
+            headers={"Content-Type": "application/json"},
+            text=load_fixture("states.json"),
+        ),
+        match_querystring=True,
+    )
+    async with aiohttp.ClientSession() as session:
+        opensky = OpenSky(session=session)
+        bounding_box = BoundingBox(
+            min_latitude=0,
+            max_latitude=0,
+            min_longitude=0,
+            max_longitude=0,
+        )
+        await opensky.states(bounding_box=bounding_box)
         await opensky.close()
 
 
