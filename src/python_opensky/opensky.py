@@ -232,28 +232,28 @@ class OpenSky:
         """Calculate a point from an origin point, direction in degrees and distance."""
         # ruff: noqa: N806
         # pylint: disable=invalid-name
-        piD4 = math.atan(1.0)
-        two_pi = piD4 * 8.0
-        latitude = latitude * piD4 / 45.0
-        longitude = longitude * piD4 / 45.0
-        degrees = degrees * piD4 / 45.0
+        pi_d4 = math.atan(1.0)
+        two_pi = pi_d4 * 8.0
+        latitude = latitude * pi_d4 / 45.0
+        longitude = longitude * pi_d4 / 45.0
+        degrees = degrees * pi_d4 / 45.0
         if degrees < 0.0:
             degrees = degrees + two_pi
         if degrees > two_pi:
             degrees = degrees - two_pi
-        AXIS_A = 6378137
-        FLATTENING = 1 / 298.257223563
-        AXIS_B = AXIS_A * (1.0 - FLATTENING)
-        TanU1 = (1 - FLATTENING) * math.tan(latitude)
-        U1 = math.atan(TanU1)
-        sigma1 = math.atan2(TanU1, math.cos(degrees))
-        Sinalpha = math.cos(U1) * math.sin(degrees)
-        cosalpha_sq = 1.0 - Sinalpha * Sinalpha
-        u2 = cosalpha_sq * (AXIS_A * AXIS_A - AXIS_B * AXIS_B) / (AXIS_B * AXIS_B)
+        axis_a = 6378137
+        flattening = 1 / 298.257223563
+        axis_b = axis_a * (1.0 - flattening)
+        tan_u1 = (1 - flattening) * math.tan(latitude)
+        u1 = math.atan(tan_u1)
+        sigma1 = math.atan2(tan_u1, math.cos(degrees))
+        sinalpha = math.cos(u1) * math.sin(degrees)
+        cosalpha_sq = 1.0 - sinalpha * sinalpha
+        u2 = cosalpha_sq * (axis_a * axis_a - axis_b * axis_b) / (axis_b * axis_b)
         A = 1.0 + (u2 / 16384) * (4096 + u2 * (-768 + u2 * (320 - 175 * u2)))
         B = (u2 / 1024) * (256 + u2 * (-128 + u2 * (74 - 47 * u2)))
         # Starting with the approx
-        sigma = distance / (AXIS_B * A)
+        sigma = distance / (axis_b * A)
         last_sigma = 2.0 * sigma + 2.0  # something impossible
 
         # Iterate the following 3 eqs until no sig change in sigma
@@ -280,19 +280,19 @@ class OpenSky:
                 )
             )
             last_sigma = sigma
-            sigma = (distance / (AXIS_B * A)) + delta_sigma
+            sigma = (distance / (axis_b * A)) + delta_sigma
         phi2 = math.atan2(
             (
-                math.sin(U1) * math.cos(sigma)
-                + math.cos(U1) * math.sin(sigma) * math.cos(degrees)
+                math.sin(u1) * math.cos(sigma)
+                + math.cos(u1) * math.sin(sigma) * math.cos(degrees)
             ),
             (
-                (1 - FLATTENING)
+                (1 - flattening)
                 * math.sqrt(
-                    math.pow(Sinalpha, 2)
+                    math.pow(sinalpha, 2)
                     + pow(
-                        math.sin(U1) * math.sin(sigma)
-                        - math.cos(U1) * math.cos(sigma) * math.cos(degrees),
+                        math.sin(u1) * math.sin(sigma)
+                        - math.cos(u1) * math.cos(sigma) * math.cos(degrees),
                         2,
                     ),
                 )
@@ -301,12 +301,12 @@ class OpenSky:
         lembda = math.atan2(
             (math.sin(sigma) * math.sin(degrees)),
             (
-                math.cos(U1) * math.cos(sigma)
-                - math.sin(U1) * math.sin(sigma) * math.cos(degrees)
+                math.cos(u1) * math.cos(sigma)
+                - math.sin(u1) * math.sin(sigma) * math.cos(degrees)
             ),
         )
-        C = (FLATTENING / 16) * cosalpha_sq * (4 + FLATTENING * (4 - 3 * cosalpha_sq))
-        omega = lembda - (1 - C) * FLATTENING * Sinalpha * (
+        C = (flattening / 16) * cosalpha_sq * (4 + flattening * (4 - 3 * cosalpha_sq))
+        omega = lembda - (1 - C) * flattening * sinalpha * (
             sigma
             + C
             * math.sin(sigma)
@@ -317,14 +317,14 @@ class OpenSky:
         )
         lembda2 = longitude + omega
         math.atan2(
-            Sinalpha,
+            sinalpha,
             (
-                -math.sin(U1) * math.sin(sigma)
-                + math.cos(U1) * math.cos(sigma) * math.cos(degrees)
+                -math.sin(u1) * math.sin(sigma)
+                + math.cos(u1) * math.cos(sigma) * math.cos(degrees)
             ),
         )
-        phi2 = phi2 * 45.0 / piD4
-        lembda2 = lembda2 * 45.0 / piD4
+        phi2 = phi2 * 45.0 / pi_d4
+        lembda2 = lembda2 * 45.0 / pi_d4
         return phi2, lembda2
 
     @staticmethod
