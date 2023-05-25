@@ -22,7 +22,7 @@ jobs:
         run: pipx install poetry
       - name: 🏗 Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v4.6.0
+        uses: actions/setup-python@v4.6.1
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           cache: "poetry"
@@ -45,7 +45,7 @@ jobs:
         run: pipx install poetry
       - name: 🏗 Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@57ded4d7d5e986d7296eab16560982c6dd7c923b # v4
+        uses: actions/setup-python@v4.6.1 # v4
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           cache: "poetry"
@@ -68,7 +68,7 @@ jobs:
         run: pipx install poetry
       - name: 🏗 Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@57ded4d7d5e986d7296eab16560982c6dd7c923b # v4
+        uses: actions/setup-python@v4.6.1 # v4
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           cache: "poetry"
@@ -91,7 +91,7 @@ jobs:
         run: pipx install poetry
       - name: 🏗 Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@57ded4d7d5e986d7296eab16560982c6dd7c923b # v4
+        uses: actions/setup-python@v4.6.1 # v4
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           cache: "poetry"
@@ -140,7 +140,7 @@ jobs:
         run: pipx install poetry
       - name: 🏗 Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@57ded4d7d5e986d7296eab16560982c6dd7c923b # v4
+        uses: actions/setup-python@v4.6.1 # v4
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           cache: "poetry"
@@ -163,7 +163,7 @@ jobs:
         run: pipx install poetry
       - name: 🏗 Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@57ded4d7d5e986d7296eab16560982c6dd7c923b # v4
+        uses: actions/setup-python@v4.6.1 # v4
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           cache: "poetry"
@@ -186,7 +186,7 @@ jobs:
         run: pipx install poetry
       - name: 🏗 Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@57ded4d7d5e986d7296eab16560982c6dd7c923b # v4
+        uses: actions/setup-python@v4.6.1 # v4
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           cache: "poetry"
