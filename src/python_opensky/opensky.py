@@ -228,8 +228,7 @@ class OpenSky:
         radius: float,
     ) -> BoundingBox:
         """Get bounding box from radius and a point."""
-        half_side_in_km = radius / 1000
-        assert half_side_in_km > 0
+        half_side_in_km = abs(radius) / 1000
 
         lat = math.radians(latitude)
         lon = math.radians(longitude)
@@ -249,7 +248,7 @@ class OpenSky:
             lon_max = math.pi - (lon_max % math.pi)
 
         rad2deg = math.degrees
-     
+
         return BoundingBox(
             min_latitude=rad2deg(lat_min),
             max_latitude=rad2deg(lon_min),
