@@ -222,127 +222,39 @@ class OpenSky:
         return dict(zip(keys, state, strict=True))
 
     @staticmethod
-    # pylint: disable=too-many-locals
-    def calculate_point(
-        latitude: float,
-        longitude: float,
-        distance: float,
-        degrees: float,
-    ) -> tuple[float, float]:
-        """Calculate a point from an origin point, direction in degrees and distance."""
-        # ruff: noqa: N806
-        # pylint: disable=invalid-name
-        pi_d4 = math.atan(1.0)
-        two_pi = pi_d4 * 8.0
-        latitude = latitude * pi_d4 / 45.0
-        longitude = longitude * pi_d4 / 45.0
-        degrees = degrees * pi_d4 / 45.0
-        if degrees < 0.0:
-            degrees = degrees + two_pi
-        if degrees > two_pi:
-            degrees = degrees - two_pi
-        axis_a = 6378137
-        flattening = 1 / 298.257223563
-        axis_b = axis_a * (1.0 - flattening)
-        tan_u1 = (1 - flattening) * math.tan(latitude)
-        u1 = math.atan(tan_u1)
-        sigma1 = math.atan2(tan_u1, math.cos(degrees))
-        sinalpha = math.cos(u1) * math.sin(degrees)
-        cosalpha_sq = 1.0 - sinalpha * sinalpha
-        u2 = cosalpha_sq * (axis_a * axis_a - axis_b * axis_b) / (axis_b * axis_b)
-        A = 1.0 + (u2 / 16384) * (4096 + u2 * (-768 + u2 * (320 - 175 * u2)))
-        B = (u2 / 1024) * (256 + u2 * (-128 + u2 * (74 - 47 * u2)))
-        # Starting with the approx
-        sigma = distance / (axis_b * A)
-        last_sigma = 2.0 * sigma + 2.0  # something impossible
-
-        # Iterate the following 3 eqs until no sig change in sigma
-        # two_sigma_m , delta_sigma
-        while abs((last_sigma - sigma) / sigma) > 1.0e-9:
-            two_sigma_m = 2 * sigma1 + sigma
-            delta_sigma = (
-                B
-                * math.sin(sigma)
-                * (
-                    math.cos(two_sigma_m)
-                    + (B / 4)
-                    * (
-                        math.cos(sigma)
-                        * (
-                            -1
-                            + 2 * math.pow(math.cos(two_sigma_m), 2)
-                            - (B / 6)
-                            * math.cos(two_sigma_m)
-                            * (-3 + 4 * math.pow(math.sin(sigma), 2))
-                            * (-3 + 4 * math.pow(math.cos(two_sigma_m), 2))
-                        )
-                    )
-                )
-            )
-            last_sigma = sigma
-            sigma = (distance / (axis_b * A)) + delta_sigma
-        phi2 = math.atan2(
-            (
-                math.sin(u1) * math.cos(sigma)
-                + math.cos(u1) * math.sin(sigma) * math.cos(degrees)
-            ),
-            (
-                (1 - flattening)
-                * math.sqrt(
-                    math.pow(sinalpha, 2)
-                    + pow(
-                        math.sin(u1) * math.sin(sigma)
-                        - math.cos(u1) * math.cos(sigma) * math.cos(degrees),
-                        2,
-                    ),
-                )
-            ),
-        )
-        lembda = math.atan2(
-            (math.sin(sigma) * math.sin(degrees)),
-            (
-                math.cos(u1) * math.cos(sigma)
-                - math.sin(u1) * math.sin(sigma) * math.cos(degrees)
-            ),
-        )
-        C = (flattening / 16) * cosalpha_sq * (4 + flattening * (4 - 3 * cosalpha_sq))
-        omega = lembda - (1 - C) * flattening * sinalpha * (
-            sigma
-            + C
-            * math.sin(sigma)
-            * (
-                math.cos(two_sigma_m)
-                + C * math.cos(sigma) * (-1 + 2 * math.pow(math.cos(two_sigma_m), 2))
-            )
-        )
-        lembda2 = longitude + omega
-        math.atan2(
-            sinalpha,
-            (
-                -math.sin(u1) * math.sin(sigma)
-                + math.cos(u1) * math.cos(sigma) * math.cos(degrees)
-            ),
-        )
-        phi2 = phi2 * 45.0 / pi_d4
-        lembda2 = lembda2 * 45.0 / pi_d4
-        return phi2, lembda2
-
-    @staticmethod
     def get_bounding_box(
         latitude: float,
         longitude: float,
         radius: float,
     ) -> BoundingBox:
         """Get bounding box from radius and a point."""
-        north = OpenSky.calculate_point(latitude, longitude, radius, 0)
-        east = OpenSky.calculate_point(latitude, longitude, radius, 90)
-        south = OpenSky.calculate_point(latitude, longitude, radius, 180)
-        west = OpenSky.calculate_point(latitude, longitude, radius, 270)
+        half_side_in_km = radius / 1000
+        assert half_side_in_km > 0
+
+        lat = math.radians(latitude)
+        lon = math.radians(longitude)
+
+        approx_earth_radius = 6371
+        parallel_radius = approx_earth_radius * math.cos(lat)
+
+        lat_min = lat - half_side_in_km / approx_earth_radius
+        lat_min = max(-math.pi / 2, lat_min)
+        lat_max = lat + half_side_in_km / approx_earth_radius
+        lat_max = min(math.pi / 2, lat_max)
+        lon_min = lon - half_side_in_km / parallel_radius
+        if lon_min < -math.pi:
+            lon_min = math.pi + (lon_min % -math.pi)
+        lon_max = lon + half_side_in_km / parallel_radius
+        if lon_max > math.pi:
+            lon_max = math.pi - (lon_max % math.pi)
+
+        rad2deg = math.degrees
+     
         return BoundingBox(
-            min_latitude=min(north[0], south[0]) + latitude,
-            max_latitude=max(north[0], south[0]) + latitude,
-            min_longitude=min(east[1], west[1]) + longitude,
-            max_longitude=max(east[1], west[1]) + longitude,
+            min_latitude=rad2deg(lat_min),
+            max_latitude=rad2deg(lon_min),
+            min_longitude=rad2deg(lat_max),
+            max_longitude=rad2deg(lon_max),
         )
 
     async def close(self) -> None:
