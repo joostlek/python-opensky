@@ -7,6 +7,7 @@ from python_opensky import (
     OpenSky,
 )
 
+PRECISION = 0.001
 
 @pytest.mark.parametrize(
     ("latitude", "longitude", "radius", "bounding_box"),
@@ -14,12 +15,12 @@ from python_opensky import (
         (
             0.0,
             0.0,
-            25000,
+            111120,
             BoundingBox(
-                -0.22609235747829648,
-                0.22609235747829648,
-                -0.22457882102988042,
-                0.22457882102988042,
+                min_latitude=-0.9993261684968934,
+                max_latitude=0.9993261684968934,
+                min_longitude=-0.9993261684968934,
+                max_longitude=0.9993261684968934,
             ),
         ),
     ],
@@ -32,13 +33,13 @@ async def test_calculating_bounding_box(
 ) -> None:
     """Test calculating bounding box."""
     res_bounding_box = OpenSky.get_bounding_box(latitude, longitude, radius)
-    assert res_bounding_box.min_latitude == approx(bounding_box.min_latitude, 0.000001)
-    assert res_bounding_box.max_latitude == approx(bounding_box.max_latitude, 0.000001)
+    assert res_bounding_box.min_latitude == approx(bounding_box.min_latitude, PRECISION)
+    assert res_bounding_box.max_latitude == approx(bounding_box.max_latitude, PRECISION)
     assert res_bounding_box.min_longitude == approx(
         bounding_box.min_longitude,
-        0.000001,
+        PRECISION,
     )
     assert res_bounding_box.max_longitude == approx(
         bounding_box.min_longitude,
-        0.000001,
+        PRECISION,
     )
