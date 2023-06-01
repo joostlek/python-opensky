@@ -234,13 +234,35 @@ class OpenSky:
         lon = math.radians(longitude)
 
         approx_earth_radius = 6371
-        hypotenuse_distance=math.sqrt(2*(math.pow(half_side_in_km,2)))
+        hypotenuse_distance = math.sqrt(2 * (math.pow(half_side_in_km, 2)))
 
-        lat_min = math.asin( math.sin( lat ) * math.cos( hypotenuse_distance / approx_earth_radius ) + math.cos( lat ) * math.sin( hypotenuse_distance / approx_earth_radius ) * math.cos( 225 * ( math.pi / 180 ) ) );
-        lon_min = lon + math.atan2( math.sin( 225 * ( math.pi / 180 ) ) * math.sin( hypotenuse_distance / approx_earth_radius ) * math.cos( lat ), math.cos( hypotenuse_distance / approx_earth_radius ) - math.sin( lat ) * math.sin( lat_min ) );
+        lat_min = math.asin(
+            math.sin(lat) * math.cos(hypotenuse_distance / approx_earth_radius)
+            + math.cos(lat)
+            * math.sin(hypotenuse_distance / approx_earth_radius)
+            * math.cos(225 * (math.pi / 180)),
+        )
+        lon_min = lon + math.atan2(
+            math.sin(225 * (math.pi / 180))
+            * math.sin(hypotenuse_distance / approx_earth_radius)
+            * math.cos(lat),
+            math.cos(hypotenuse_distance / approx_earth_radius)
+            - math.sin(lat) * math.sin(lat_min),
+        )
 
-        lat_max = math.asin( math.sin( lat ) * math.cos( hypotenuse_distance / approx_earth_radius ) + math.cos( lat ) * math.sin( hypotenuse_distance / approx_earth_radius ) * math.cos( 45 * ( math.pi / 180 ) ) );
-        lon_max = lon + math.atan2( math.sin( 45 * ( math.pi / 180 ) ) * math.sin( hypotenuse_distance / approx_earth_radius ) * math.cos( lat ), math.cos( hypotenuse_distance / approx_earth_radius ) - math.sin( lat ) * math.sin( lat_max ) );
+        lat_max = math.asin(
+            math.sin(lat) * math.cos(hypotenuse_distance / approx_earth_radius)
+            + math.cos(lat)
+            * math.sin(hypotenuse_distance / approx_earth_radius)
+            * math.cos(45 * (math.pi / 180)),
+        )
+        lon_max = lon + math.atan2(
+            math.sin(45 * (math.pi / 180))
+            * math.sin(hypotenuse_distance / approx_earth_radius)
+            * math.cos(lat),
+            math.cos(hypotenuse_distance / approx_earth_radius)
+            - math.sin(lat) * math.sin(lat_max),
+        )
 
         rad2deg = math.degrees
 
