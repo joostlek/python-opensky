@@ -339,10 +339,10 @@ class OpenSky:
         south = OpenSky.calculate_point(latitude, longitude, radius, 180)
         west = OpenSky.calculate_point(latitude, longitude, radius, 270)
         return BoundingBox(
-            min_latitude=min(north[0], south[0]) + latitude,
-            max_latitude=max(north[0], south[0]) + latitude,
-            min_longitude=min(east[1], west[1]) + longitude,
-            max_longitude=max(east[1], west[1]) + longitude,
+            min_latitude=min(north[0], south[0]),
+            max_latitude=max(north[0], south[0]),
+            min_longitude=min(east[1], west[1]),
+            max_longitude=max(east[1], west[1]),
         )
 
     async def close(self) -> None:

@@ -1,18 +1,88 @@
 """Tests for the OpenSky Library."""
-
+import pytest
+from _pytest.python_api import approx
 
 from python_opensky import (
+    BoundingBox,
     OpenSky,
 )
 
+PRECISION = 0.01
 
-async def test_calculating_bounding_box() -> None:
+
+@pytest.mark.parametrize(
+    ("latitude", "longitude", "radius", "bounding_box"),
+    [
+        (
+            0.0,
+            0.0,
+            111120,
+            BoundingBox(
+                min_latitude=-1.0,
+                max_latitude=1.0,
+                min_longitude=-1.0,
+                max_longitude=1.0,
+            ),
+        ),
+        #     180.0,
+        #     0.0,
+        #     111120,
+        #     BoundingBox(
+        #     ),
+        # ),
+        (
+            360.0,
+            0.0,
+            111120,
+            BoundingBox(
+                min_latitude=-1.0,
+                max_latitude=1.0,
+                min_longitude=-1.0,
+                max_longitude=1.0,
+            ),
+        ),
+        (
+            0.0,
+            45.0,
+            111120,
+            BoundingBox(
+                min_latitude=-1.0,
+                max_latitude=1.0,
+                min_longitude=44.0,
+                max_longitude=46.0,
+            ),
+        ),
+        (
+            0.0,
+            90.0,
+            111120,
+            BoundingBox(
+                min_latitude=-1.0,
+                max_latitude=1.0,
+                min_longitude=89.0,
+                max_longitude=91.0,
+            ),
+        ),
+    ],
+)
+async def test_calculating_bounding_box(
+    latitude: float,
+    longitude: float,
+    radius: float,
+    bounding_box: BoundingBox,
+) -> None:
     """Test calculating bounding box."""
-    bounding_box = OpenSky.get_bounding_box(0.0, 0.0, 25000)
-    assert bounding_box.min_latitude == -0.22609235747829648
-    assert bounding_box.max_latitude == 0.22609235747829648
-    assert bounding_box.min_longitude == -0.22457882102988042
-    assert bounding_box.max_longitude == 0.22457882102988042
+    res_bounding_box = OpenSky.get_bounding_box(latitude, longitude, radius)
+    assert res_bounding_box.min_latitude == approx(bounding_box.min_latitude, PRECISION)
+    assert res_bounding_box.max_latitude == approx(bounding_box.max_latitude, PRECISION)
+    assert res_bounding_box.min_longitude == approx(
+        bounding_box.min_longitude,
+        PRECISION,
+    )
+    assert res_bounding_box.max_longitude == approx(
+        bounding_box.max_longitude,
+        PRECISION,
+    )
 
 
 async def test_calculating_direction() -> None:
