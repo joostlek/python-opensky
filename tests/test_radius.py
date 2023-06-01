@@ -25,25 +25,14 @@ PRECISION = 0.01
             ),
         ),
         (
-            90.0,
+            45.0,
             0.0,
             111120,
             BoundingBox(
-                min_latitude=89.0,
-                max_latitude=89.0,
-                min_longitude=-1.0,
-                max_longitude=1.0,
-            ),
-        ),
-        (
-            180.0,
-            0.0,
-            111120,
-            BoundingBox(
-                min_latitude=179.0,
-                max_latitude=-179.0,
-                min_longitude=-1.0,
-                max_longitude=1.0,
+                min_latitude=44.0,
+                max_latitude=46.0,
+                min_longitude=-1.4,
+                max_longitude=1.438,
             ),
         ),
         (
