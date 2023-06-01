@@ -234,18 +234,13 @@ class OpenSky:
         lon = math.radians(longitude)
 
         approx_earth_radius = 6371
-        parallel_radius = approx_earth_radius * math.cos(lat)
+        hypotenuse_distance=math.sqrt(2*(math.pow(half_side_in_km,2)))
 
-        lat_min = lat - half_side_in_km / approx_earth_radius
-        lat_min = max(-math.pi / 2, lat_min)
-        lat_max = lat + half_side_in_km / approx_earth_radius
-        lat_max = min(math.pi / 2, lat_max)
-        lon_min = lon - half_side_in_km / parallel_radius
-        if lon_min < -math.pi:
-            lon_min = math.pi + (lon_min % -math.pi)
-        lon_max = lon + half_side_in_km / parallel_radius
-        if lon_max > math.pi:
-            lon_max = math.pi - (lon_max % math.pi)
+        lat_min = math.asin( math.sin( lat ) * math.cos( hypotenuse_distance / approx_earth_radius ) + math.cos( lat ) * math.sin( hypotenuse_distance / approx_earth_radius ) * math.cos( 225 * ( math.pi / 180 ) ) );
+        lon_min = lon + math.atan2( math.sin( 225 * ( math.pi / 180 ) ) * math.sin( hypotenuse_distance / approx_earth_radius ) * math.cos( lat ), math.cos( hypotenuse_distance / approx_earth_radius ) - math.sin( lat ) * math.sin( lat_min ) );
+
+        lat_max = math.asin( math.sin( lat ) * math.cos( hypotenuse_distance / approx_earth_radius ) + math.cos( lat ) * math.sin( hypotenuse_distance / approx_earth_radius ) * math.cos( 45 * ( math.pi / 180 ) ) );
+        lon_max = lon + math.atan2( math.sin( 45 * ( math.pi / 180 ) ) * math.sin( hypotenuse_distance / approx_earth_radius ) * math.cos( lat ), math.cos( hypotenuse_distance / approx_earth_radius ) - math.sin( lat ) * math.sin( lat_max ) );
 
         rad2deg = math.degrees
 
