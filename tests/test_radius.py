@@ -9,6 +9,7 @@ from python_opensky import (
 
 PRECISION = 0.001
 
+
 @pytest.mark.parametrize(
     ("latitude", "longitude", "radius", "bounding_box"),
     [
