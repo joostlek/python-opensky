@@ -246,8 +246,8 @@ class OpenSky:
 
         return BoundingBox(
             min_latitude=rad2deg(lat_min),
-            max_latitude=rad2deg(lon_min),
-            min_longitude=rad2deg(lat_max),
+            max_latitude=rad2deg(lat_max),
+            min_longitude=rad2deg(lon_min),
             max_longitude=rad2deg(lon_max),
         )
 
