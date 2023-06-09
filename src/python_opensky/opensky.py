@@ -165,10 +165,13 @@ class OpenSky:
 
         data = await self._request("states/own", data=params)
 
-        data = {
-            **data,
-            "states": [self._convert_state(state) for state in data["states"]],
-        }
+        if data["states"] is None:
+            data["states"] = []
+        else:
+            data = {
+                **data,
+                "states": [self._convert_state(state) for state in data["states"]],
+            }
 
         return StatesResponse.parse_obj(data)
 
