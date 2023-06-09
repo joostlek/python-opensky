@@ -143,10 +143,13 @@ class OpenSky:
 
         data = await self._request("states/all", data=params)
 
-        data = {
-            **data,
-            "states": [self._convert_state(state) for state in data["states"]],
-        }
+        if data["states"] is None:
+            data["states"] = []
+        else:
+            data = {
+                **data,
+                "states": [self._convert_state(state) for state in data["states"]],
+            }
 
         self._register_credit_usage(credit_cost)
 

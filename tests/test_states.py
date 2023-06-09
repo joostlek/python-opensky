@@ -64,6 +64,29 @@ async def test_states(
         await opensky.close()
 
 
+async def test_unavailable_states(
+    aresponses: ResponsesMockServer,
+) -> None:
+    """Test retrieving no states."""
+    aresponses.add(
+        OPENSKY_URL,
+        "/api/states/all",
+        "GET",
+        aresponses.Response(
+            status=200,
+            headers={"Content-Type": "application/json"},
+            text=load_fixture("unavailable_states.json"),
+        ),
+    )
+    async with aiohttp.ClientSession() as session:
+        opensky = OpenSky(session=session)
+        response: StatesResponse = await opensky.get_states()
+        assert response.states is not None
+        assert len(response.states) == 0
+        assert response.time == 1683488744
+        await opensky.close()
+
+
 async def test_own_states(
     aresponses: ResponsesMockServer,
 ) -> None:
