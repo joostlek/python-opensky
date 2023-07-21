@@ -3,20 +3,23 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from pydantic import BaseModel, Field
+try:
+    from pydantic.v1 import BaseModel, Field
+except ImportError:
+    from pydantic import BaseModel, Field
 
 from .const import AircraftCategory, PositionSource
 from .exceptions import OpenSkyCoordinateError
 
 
-class StatesResponse(BaseModel):
+class StatesResponse(BaseModel):  # type: ignore[misc]
     """Represents the states response."""
 
     states: list[StateVector] = Field(...)
     time: int = Field(...)
 
 
-class StateVector(BaseModel):
+class StateVector(BaseModel):  # type: ignore[misc]
     """Represents the state of a vehicle at a particular time.
 
     Attributes
