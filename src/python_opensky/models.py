@@ -6,20 +6,20 @@ from dataclasses import dataclass
 try:
     from pydantic.v1 import BaseModel, Field
 except ImportError:
-    from pydantic import BaseModel, Field
+    from pydantic import BaseModel, Field  # type: ignore[misc]
 
 from .const import AircraftCategory, PositionSource
 from .exceptions import OpenSkyCoordinateError
 
 
-class StatesResponse(BaseModel):  # type: ignore[misc]
+class StatesResponse(BaseModel):
     """Represents the states response."""
 
     states: list[StateVector] = Field(...)
     time: int = Field(...)
 
 
-class StateVector(BaseModel):  # type: ignore[misc]
+class StateVector(BaseModel):
     """Represents the state of a vehicle at a particular time.
 
     Attributes
