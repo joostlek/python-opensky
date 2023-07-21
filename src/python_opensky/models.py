@@ -6,7 +6,7 @@ from dataclasses import dataclass
 try:
     from pydantic.v1 import BaseModel, Field
 except ImportError:
-    from pydantic import BaseModel, Field  # type: ignore
+    from pydantic import BaseModel, Field  # type: ignore[attr-defined]
 
 from .const import AircraftCategory, PositionSource
 from .exceptions import OpenSkyCoordinateError
