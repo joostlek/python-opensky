@@ -5,8 +5,8 @@ from dataclasses import dataclass
 
 try:
     from pydantic.v1 import BaseModel, Field
-except ImportError:
-    from pydantic import BaseModel, Field  # type: ignore[assignment]
+except ImportError:  # pragma: no cover
+    from pydantic import BaseModel, Field  # type: ignore[assignment] # pragma: no cover
 
 from .const import AircraftCategory, PositionSource
 from .exceptions import OpenSkyCoordinateError
