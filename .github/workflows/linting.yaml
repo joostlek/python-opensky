@@ -4,6 +4,8 @@ name: Linting
 # yamllint disable-line rule:truthy
 on:
   push:
+    branches:
+      - main
   pull_request:
   workflow_dispatch:
 
@@ -118,8 +120,6 @@ jobs:
         run: poetry run pre-commit run check-toml --all-files
       - name: 🚀 Check XML files
         run: poetry run pre-commit run check-xml --all-files
-      - name: 🚀 Check YAML files
-        run: poetry run pre-commit run check-yaml --all-files
       - name: 🚀 Check YAML files
         run: poetry run pre-commit run check-yaml --all-files
       - name: 🚀 Detect Private Keys
