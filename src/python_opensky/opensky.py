@@ -37,14 +37,34 @@ class OpenSky:
     _auth: BasicAuth | None = None
     _contributing_user: bool = False
 
-    def authenticate(self, auth: BasicAuth, *, contributing_user: bool = False) -> None:
+    async def authenticate(
+        self,
+        auth: BasicAuth,
+        *,
+        contributing_user: bool = False,
+    ) -> None:
         """Authenticate the user."""
         self._auth = auth
+        try:
+            await self.get_states()
+        except OpenSkyUnauthenticatedError as exc:
+            self._auth = None
+            raise OpenSkyUnauthenticatedError from exc
         self._contributing_user = contributing_user
         if contributing_user:
             self.opensky_credits = 8000
         else:
             self.opensky_credits = 4000
+
+    @property
+    def is_contributing_user(self) -> bool:
+        """Return if the user is contributing to OpenSky."""
+        return self._contributing_user
+
+    @property
+    def is_authenticated(self) -> bool:
+        """Return if the user is correctly authenticated."""
+        return self._auth is not None
 
     async def _request(
         self,
@@ -107,6 +127,8 @@ class OpenSky:
             ClientResponseError,
             socket.gaierror,
         ) as exception:
+            if isinstance(exception, ClientResponseError) and exception.status == 401:
+                raise OpenSkyUnauthenticatedError from exception
             msg = "Error occurred while communicating with OpenSky API"
             raise OpenSkyConnectionError(msg) from exception
 
