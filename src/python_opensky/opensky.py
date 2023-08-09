@@ -7,7 +7,7 @@ import socket
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from importlib import metadata
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import async_timeout
 from aiohttp import BasicAuth, ClientError, ClientResponseError, ClientSession
@@ -21,6 +21,9 @@ from .exceptions import (
     OpenSkyUnauthenticatedError,
 )
 from .models import BoundingBox, StatesResponse
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 @dataclass
@@ -306,7 +309,7 @@ class OpenSky:
         if self.session and self._close_session:
             await self.session.close()
 
-    async def __aenter__(self) -> OpenSky:
+    async def __aenter__(self) -> Self:
         """Async enter.
 
         Returns
@@ -315,7 +318,7 @@ class OpenSky:
         """
         return self
 
-    async def __aexit__(self, *_exc_info: Any) -> None:
+    async def __aexit__(self, *_exc_info: object) -> None:
         """Async exit.
 
         Args:
