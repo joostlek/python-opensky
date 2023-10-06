@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "python_opensky"
-version = "0.1.0"
+version = "0.2.1"
 description = "Asynchronous Python client for Opensky API."
 authors = ["Joost Lekkerkerker <joostlek@outlook.com>"]
 maintainers = ["Joost Lekkerkerker <joostlek@outlook.com>"]
@@ -33,19 +33,19 @@ pydantic = ">=1.10.8"
 
 [tool.poetry.group.dev.dependencies]
 aresponses = "2.1.6"
-black = "23.7.0"
-blacken-docs = "1.15.0"
+black = "23.9.1"
+blacken-docs = "1.16.0"
 codespell = "2.2.5"
 covdefaults = "2.3.0"
-coverage = {version = "7.2.7", extras = ["toml"]}
-mypy = "1.4.1"
-pre-commit = "3.3.3"
+coverage = {version = "7.3.2", extras = ["toml"]}
+mypy = "1.5.1"
+pre-commit = "3.4.0"
 pre-commit-hooks = "4.4.0"
-pylint = "2.17.5"
-pytest = "7.4.0"
+pylint = "2.17.7"
+pytest = "7.4.2"
 pytest-asyncio = "0.21.1"
 pytest-cov = "4.1.0"
-ruff = "0.0.282"
+ruff = "0.0.292"
 safety = "2.4.0b1"
 yamllint = "1.32.0"
 

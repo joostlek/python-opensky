@@ -7,7 +7,7 @@ import socket
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from importlib import metadata
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import async_timeout
 from aiohttp import BasicAuth, ClientError, ClientResponseError, ClientSession
@@ -21,6 +21,9 @@ from .exceptions import (
     OpenSkyUnauthenticatedError,
 )
 from .models import BoundingBox, StatesResponse
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 @dataclass
@@ -37,14 +40,34 @@ class OpenSky:
     _auth: BasicAuth | None = None
     _contributing_user: bool = False
 
-    def authenticate(self, auth: BasicAuth, *, contributing_user: bool = False) -> None:
+    async def authenticate(
+        self,
+        auth: BasicAuth,
+        *,
+        contributing_user: bool = False,
+    ) -> None:
         """Authenticate the user."""
         self._auth = auth
+        try:
+            await self.get_states()
+        except OpenSkyUnauthenticatedError as exc:
+            self._auth = None
+            raise OpenSkyUnauthenticatedError from exc
         self._contributing_user = contributing_user
         if contributing_user:
             self.opensky_credits = 8000
         else:
             self.opensky_credits = 4000
+
+    @property
+    def is_contributing_user(self) -> bool:
+        """Return if the user is contributing to OpenSky."""
+        return self._contributing_user
+
+    @property
+    def is_authenticated(self) -> bool:
+        """Return if the user is correctly authenticated."""
+        return self._auth is not None
 
     async def _request(
         self,
@@ -107,6 +130,8 @@ class OpenSky:
             ClientResponseError,
             socket.gaierror,
         ) as exception:
+            if isinstance(exception, ClientResponseError) and exception.status == 401:
+                raise OpenSkyUnauthenticatedError from exception
             msg = "Error occurred while communicating with OpenSky API"
             raise OpenSkyConnectionError(msg) from exception
 
@@ -284,7 +309,7 @@ class OpenSky:
         if self.session and self._close_session:
             await self.session.close()
 
-    async def __aenter__(self) -> OpenSky:
+    async def __aenter__(self) -> Self:
         """Async enter.
 
         Returns
@@ -293,7 +318,7 @@ class OpenSky:
         """
         return self
 
-    async def __aexit__(self, *_exc_info: Any) -> None:
+    async def __aexit__(self, *_exc_info: object) -> None:
         """Async exit.
 
         Args:
