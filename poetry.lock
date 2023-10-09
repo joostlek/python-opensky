@@ -124,13 +124,13 @@ frozenlist = ">=1.1.0"
 
 [[package]]
 name = "annotated-types"
-version = "0.5.0"
+version = "0.6.0"
 description = "Reusable constraint types to use with typing.Annotated"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "annotated_types-0.5.0-py3-none-any.whl", hash = "sha256:58da39888f92c276ad970249761ebea80ba544b77acddaa1a4d6cf78287d45fd"},
-    {file = "annotated_types-0.5.0.tar.gz", hash = "sha256:47cdc3490d9ac1506ce92c7aaa76c579dc3509ff11e098fc867e5130ab7be802"},
+    {file = "annotated_types-0.6.0-py3-none-any.whl", hash = "sha256:0641064de18ba7a25dee8f96403ebc39113d0cb953a01429249d5c7564666a43"},
+    {file = "annotated_types-0.6.0.tar.gz", hash = "sha256:563339e807e53ffd9c267e99fc6d9ea23eb8443c08f112651963e24e22f84a5d"},
 ]
 
 [[package]]
@@ -1403,17 +1403,17 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "ruamel-yaml"
-version = "0.17.33"
+version = "0.17.35"
 description = "ruamel.yaml is a YAML parser/emitter that supports roundtrip preservation of comments, seq/map flow style, and map key order"
 optional = false
 python-versions = ">=3"
 files = [
-    {file = "ruamel.yaml-0.17.33-py3-none-any.whl", hash = "sha256:2080c7a02b8a30fb3c06727cdf3e254a64055eedf3aa2d17c2b669639c04971b"},
-    {file = "ruamel.yaml-0.17.33.tar.gz", hash = "sha256:5c56aa0bff2afceaa93bffbfc78b450b7dc1e01d5edb80b3a570695286ae62b1"},
+    {file = "ruamel.yaml-0.17.35-py3-none-any.whl", hash = "sha256:b105e3e6fc15b41fdb201ba1b95162ae566a4ef792b9f884c46b4ccc5513a87a"},
+    {file = "ruamel.yaml-0.17.35.tar.gz", hash = "sha256:801046a9caacb1b43acc118969b49b96b65e8847f29029563b29ac61d02db61b"},
 ]
 
 [package.dependencies]
-"ruamel.yaml.clib" = {version = ">=0.2.7", markers = "platform_python_implementation == \"CPython\" and python_version < \"3.12\""}
+"ruamel.yaml.clib" = {version = ">=0.2.7", markers = "platform_python_implementation == \"CPython\" and python_version < \"3.13\""}
 
 [package.extras]
 docs = ["ryd"]
