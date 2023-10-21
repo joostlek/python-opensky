@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any
 
 from .const import AircraftCategory, PositionSource
 from .exceptions import OpenSkyCoordinateError
+from .util import to_enum
 
 if TYPE_CHECKING:
     from typing_extensions import Self
@@ -97,8 +98,16 @@ class StateVector:
             barometric_altitude=data.get("baro_altitude"),
             transponder_code=data.get("squawk"),
             special_purpose_indicator=data["spi"],
-            position_source=data["position_source"],
-            category=data["category"],
+            position_source=to_enum(
+                PositionSource,
+                data["position_source"],
+                PositionSource.UNKNOWN,
+            ),
+            category=to_enum(
+                AircraftCategory,
+                data["category"],
+                AircraftCategory.NO_INFORMATION,
+            ),
         )
 
 
