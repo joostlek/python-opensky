@@ -120,7 +120,7 @@ async def test_own_states(
         response: StatesResponse = await opensky.get_own_states()
         assert len(response.states) == 4
         assert opensky.opensky_credits == 8000
-        assert opensky.remaining_credits() == 7996
+        assert opensky.remaining_credits() == 7999
         await opensky.close()
 
 
