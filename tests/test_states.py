@@ -1,5 +1,6 @@
 """Tests for the OpenSky Library."""
 import asyncio
+from dataclasses import asdict
 
 import aiohttp
 import pytest
@@ -40,7 +41,7 @@ async def test_states(
     async with aiohttp.ClientSession() as session:
         opensky = OpenSky(session=session)
         response: StatesResponse = await opensky.get_states()
-        assert response.model_dump() == snapshot
+        assert asdict(response) == snapshot
         await opensky.close()
 
 

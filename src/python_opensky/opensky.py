@@ -178,7 +178,7 @@ class OpenSky:
 
         self._register_credit_usage(credit_cost)
 
-        return StatesResponse.parse_obj(data)
+        return StatesResponse.from_api(data)
 
     async def get_own_states(self, time: int = 0) -> StatesResponse:
         """Retrieve state vectors from your own sensors."""
@@ -198,7 +198,7 @@ class OpenSky:
                 "states": [self._convert_state(state) for state in data["states"]],
             }
 
-        return StatesResponse.parse_obj(data)
+        return StatesResponse.from_api(data)
 
     @staticmethod
     def calculate_credit_costs(bounding_box: BoundingBox) -> int:

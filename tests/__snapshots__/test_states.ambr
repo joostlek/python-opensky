@@ -20,7 +20,7 @@
         'transponder_code': None,
         'true_track': 342.17,
         'velocity': 137.8,
-        'vertical_rate': 13.0,
+        'vertical_rate': 13,
       }),
       dict({
         'barometric_altitude': None,
@@ -65,7 +65,7 @@
       dict({
         'barometric_altitude': 701.04,
         'callsign': 'N28CN   ',
-        'category': <AircraftCategory.GLIDER: 9>,
+        'category': <AircraftCategory.NO_INFORMATION: 0>,
         'geo_altitude': 685.8,
         'icao24': 'a2cbe1',
         'last_contact': 1683488743,

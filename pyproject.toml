@@ -28,7 +28,6 @@ packages = [
 python = "^3.10"
 aiohttp = ">=3.0.0"
 yarl = ">=1.6.0"
-pydantic = ">=1.10.8"
 syrupy = "^4.5.0"
 
 [tool.poetry.group.dev.dependencies]
