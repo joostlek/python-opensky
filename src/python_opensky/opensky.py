@@ -49,7 +49,7 @@ class OpenSky:
         """Authenticate the user."""
         self._auth = auth
         try:
-            await self.get_states()
+            await self.get_states(bounding_box=BoundingBox(0.0, 0.0, 1.0, 1.0))
         except OpenSkyUnauthenticatedError as exc:
             self._auth = None
             raise OpenSkyUnauthenticatedError from exc
