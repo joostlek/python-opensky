@@ -9,7 +9,6 @@ from datetime import datetime, timedelta, timezone
 from importlib import metadata
 from typing import TYPE_CHECKING, Any, cast
 
-import async_timeout
 from aiohttp import BasicAuth, ClientError, ClientResponseError, ClientSession
 from aiohttp.hdrs import METH_GET
 from yarl import URL
@@ -114,7 +113,7 @@ class OpenSky:
             self._close_session = True
 
         try:
-            async with async_timeout.timeout(self.request_timeout):
+            async with asyncio.timeout(self.request_timeout):
                 response = await self.session.request(
                     METH_GET,
                     url.with_query(data),
