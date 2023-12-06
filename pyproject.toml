@@ -44,7 +44,7 @@ pytest-cov = "4.1.0"
 ruff = "0.1.7"
 safety = "2.4.0b2"
 yamllint = "1.33.0"
-syrupy = "^4.6.0"
+syrupy = "4.6.0"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/joostlek/python-opensky/issues"
