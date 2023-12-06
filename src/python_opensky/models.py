@@ -2,21 +2,37 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-
-from pydantic import BaseModel, Field
+from typing import TYPE_CHECKING, Any
 
 from .const import AircraftCategory, PositionSource
 from .exceptions import OpenSkyCoordinateError
+from .util import to_enum
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
-class StatesResponse(BaseModel):
+@dataclass(slots=True)
+class StatesResponse:
     """Represents the states response."""
 
-    states: list[StateVector] = Field(...)
-    time: int = Field(...)
+    states: list[StateVector]
+    time: int
+
+    @classmethod
+    def from_api(cls, data: dict[str, Any]) -> Self:
+        """Initialize from the API."""
+        return cls(
+            time=data["time"],
+            states=[
+                StateVector.from_api(vector_data) for vector_data in data["states"]
+            ],
+        )
 
 
-class StateVector(BaseModel):
+@dataclass(slots=True)
+# pylint: disable-next=too-many-instance-attributes
+class StateVector:
     """Represents the state of a vehicle at a particular time.
 
     Attributes
@@ -43,27 +59,59 @@ class StateVector(BaseModel):
     category: Aircraft category.
     """
 
-    icao24: str = Field(...)
-    callsign: str | None = Field(None)
-    origin_country: str = Field(...)
-    time_position: int | None = Field(None)
-    last_contact: int = Field(...)
-    longitude: float | None = Field(None)
-    latitude: float | None = Field(None)
-    geo_altitude: float | None = Field(None)
-    on_ground: bool = Field(...)
-    velocity: float | None = Field(None)
-    true_track: float | None = Field(None)
-    vertical_rate: float | None = Field(None)
-    sensors: list[int] | None = Field([])
-    barometric_altitude: float | None = Field(None, alias="baro_altitude")
-    transponder_code: str | None = Field(None, alias="squawk")
-    special_purpose_indicator: bool = Field(..., alias="spi")
-    position_source: PositionSource = Field(...)
-    category: AircraftCategory = Field(...)
+    icao24: str
+    callsign: str | None
+    origin_country: str
+    time_position: int | None
+    last_contact: int
+    longitude: float | None
+    latitude: float | None
+    geo_altitude: float | None
+    on_ground: bool
+    velocity: float | None
+    true_track: float | None
+    vertical_rate: float | None
+    sensors: list[int] | None
+    barometric_altitude: float | None
+    transponder_code: str | None
+    special_purpose_indicator: bool
+    position_source: PositionSource
+    category: AircraftCategory
+
+    @classmethod
+    def from_api(cls, data: dict[str, Any]) -> Self:
+        """Initialize from the API."""
+        return cls(
+            icao24=data["icao24"],
+            callsign=data.get("callsign"),
+            origin_country=data["origin_country"],
+            time_position=data.get("time_position"),
+            last_contact=data["last_contact"],
+            longitude=data.get("longitude"),
+            latitude=data.get("latitude"),
+            geo_altitude=data.get("geo_altitude"),
+            on_ground=data["on_ground"],
+            velocity=data.get("velocity"),
+            true_track=data.get("true_track"),
+            vertical_rate=data.get("vertical_rate"),
+            sensors=data.get("sensors", []),
+            barometric_altitude=data.get("baro_altitude"),
+            transponder_code=data.get("squawk"),
+            special_purpose_indicator=data["spi"],
+            position_source=to_enum(
+                PositionSource,
+                data["position_source"],
+                PositionSource.UNKNOWN,
+            ),
+            category=to_enum(
+                AircraftCategory,
+                data["category"],
+                AircraftCategory.NO_INFORMATION,
+            ),
+        )
 
 
-@dataclass
+@dataclass(slots=True)
 class BoundingBox:
     """Bounding box for retrieving state vectors."""
 
@@ -90,7 +138,3 @@ class BoundingBox:
         if degrees < -180 or degrees > 180:
             msg = f"Invalid longitude {degrees}! Must be in [-180, 180]."
             raise OpenSkyCoordinateError(msg)
-
-
-StatesResponse.update_forward_refs()
-StateVector.update_forward_refs()

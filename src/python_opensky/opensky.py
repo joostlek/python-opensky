@@ -9,7 +9,6 @@ from datetime import datetime, timedelta, timezone
 from importlib import metadata
 from typing import TYPE_CHECKING, Any, cast
 
-import async_timeout
 from aiohttp import BasicAuth, ClientError, ClientResponseError, ClientSession
 from aiohttp.hdrs import METH_GET
 from yarl import URL
@@ -49,7 +48,7 @@ class OpenSky:
         """Authenticate the user."""
         self._auth = auth
         try:
-            await self.get_states()
+            await self.get_states(bounding_box=BoundingBox(0.0, 0.0, 1.0, 1.0))
         except OpenSkyUnauthenticatedError as exc:
             self._auth = None
             raise OpenSkyUnauthenticatedError from exc
@@ -114,7 +113,7 @@ class OpenSky:
             self._close_session = True
 
         try:
-            async with async_timeout.timeout(self.request_timeout):
+            async with asyncio.timeout(self.request_timeout):
                 response = await self.session.request(
                     METH_GET,
                     url.with_query(data),
@@ -178,7 +177,7 @@ class OpenSky:
 
         self._register_credit_usage(credit_cost)
 
-        return StatesResponse.parse_obj(data)
+        return StatesResponse.from_api(data)
 
     async def get_own_states(self, time: int = 0) -> StatesResponse:
         """Retrieve state vectors from your own sensors."""
@@ -198,7 +197,7 @@ class OpenSky:
                 "states": [self._convert_state(state) for state in data["states"]],
             }
 
-        return StatesResponse.parse_obj(data)
+        return StatesResponse.from_api(data)
 
     @staticmethod
     def calculate_credit_costs(bounding_box: BoundingBox) -> int:

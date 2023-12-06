@@ -1,10 +1,14 @@
 """Asynchronous Python client for the OpenSky API."""
+import logging
 from enum import Enum
+
+LOGGER = logging.getLogger(__package__)
 
 
 class PositionSource(int, Enum):
     """Enum holding the Position source."""
 
+    UNKNOWN = -1
     ADSB = 0
     ASTERIX = 1
     MLAT = 2
