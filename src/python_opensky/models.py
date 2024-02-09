@@ -57,6 +57,7 @@ class StateVector:
     special_purpose_indicator: Special purpose indicator.
     position_source: Origin of this state's position.
     category: Aircraft category.
+
     """
 
     icao24: str
