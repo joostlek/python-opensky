@@ -94,6 +94,7 @@ class OpenSky:
             OpenSkyConnectionError: An error occurred while communicating with
                 the OpenSky API.
             OpenSkyrror: Received an unexpected response from the OpenSky API.
+
         """
         version = metadata.version(__package__)
         url = URL.build(
@@ -314,6 +315,7 @@ class OpenSky:
         Returns
         -------
             The OpenSky object.
+
         """
         return self
 
@@ -323,5 +325,6 @@ class OpenSky:
         Args:
         ----
             _exc_info: Exec type.
+
         """
         await self.close()
