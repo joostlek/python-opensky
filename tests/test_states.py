@@ -1,4 +1,5 @@
 """Tests for the OpenSky Library."""
+
 import asyncio
 from dataclasses import asdict
 

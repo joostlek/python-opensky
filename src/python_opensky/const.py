@@ -1,4 +1,5 @@
 """Asynchronous Python client for the OpenSky API."""
+
 import logging
 from enum import Enum
 

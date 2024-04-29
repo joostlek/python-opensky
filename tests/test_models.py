@@ -1,4 +1,5 @@
 """Tests for the OpenSky Library."""
+
 import pytest
 
 from python_opensky import BoundingBox
