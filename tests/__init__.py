@@ -1,4 +1,5 @@
 """Tests for the OpenSky Library."""
+
 from pathlib import Path
 
 
