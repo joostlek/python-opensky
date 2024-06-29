@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 
 VERSION = metadata.version(__package__)
 
+
 @dataclass
 class OpenSky:
     """Main class for handling connections with OpenSky."""
