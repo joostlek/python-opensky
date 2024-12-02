@@ -6,12 +6,12 @@ from .models import BoundingBox, StatesResponse, StateVector
 from .opensky import OpenSky
 
 __all__ = [
-    "OpenSky",
-    "PositionSource",
     "AircraftCategory",
+    "BoundingBox",
+    "OpenSky",
+    "OpenSkyConnectionError",
+    "OpenSkyError",
+    "PositionSource",
     "StateVector",
     "StatesResponse",
-    "BoundingBox",
-    "OpenSkyError",
-    "OpenSkyConnectionError",
 ]
