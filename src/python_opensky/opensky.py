@@ -97,7 +97,7 @@ class OpenSky:
         ------
             OpenSkyConnectionError: An error occurred while communicating with
                 the OpenSky API.
-            OpenSkyrror: Received an unexpected response from the OpenSky API.
+            OpenSkyError: Received an unexpected response from the OpenSky API.
 
         """
         url = URL.build(
@@ -148,7 +148,7 @@ class OpenSky:
                 {"Content-Type": content_type, "response": text},
             )
 
-        return cast(dict[str, Any], await response.json())
+        return cast("dict[str, Any]", await response.json())
 
     async def get_states(
         self,
