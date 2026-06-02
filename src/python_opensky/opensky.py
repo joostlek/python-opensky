@@ -6,7 +6,7 @@ import asyncio
 import math
 import socket
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from importlib import metadata
 from typing import TYPE_CHECKING, Any, cast
 
@@ -23,7 +23,7 @@ from .exceptions import (
 from .models import BoundingBox, StatesResponse
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 
 VERSION = metadata.version(__package__)
@@ -37,7 +37,7 @@ class OpenSky:
     request_timeout: int = 10
     api_host: str = "opensky-network.org"
     opensky_credits: int = 400
-    timezone = timezone.utc
+    timezone = UTC
     _close_session: bool = False
     _credit_usage: dict[datetime, int] = field(default_factory=dict)
     _auth: BasicAuth | None = None
@@ -125,7 +125,7 @@ class OpenSky:
                     headers=headers,
                 )
                 response.raise_for_status()
-        except asyncio.TimeoutError as exception:
+        except TimeoutError as exception:
             msg = "Timeout occurred while connecting to the OpenSky API"
             raise OpenSkyConnectionError(msg) from exception
         except (

@@ -10,7 +10,7 @@ from .exceptions import OpenSkyCoordinateError
 from .util import to_enum
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 
 @dataclass(slots=True)
