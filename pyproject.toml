@@ -1,54 +1,74 @@
-[tool.poetry]
+[project]
 name = "python_opensky"
 version = "0.0.0"
 description = "Asynchronous Python client for Opensky API."
-authors = ["Joost Lekkerkerker <joostlek@outlook.com>"]
-maintainers = ["Joost Lekkerkerker <joostlek@outlook.com>"]
-license = "MIT"
+authors = [{ name = "Joost Lekkerkerker", email = "joostlek@outlook.com" }]
+requires-python = ">=3.13,<4"
 readme = "README.md"
-homepage = "https://github.com/joostlek/python-opensky"
-repository = "https://github.com/joostlek/python-opensky"
-documentation = "https://github.com/joostlek/python-opensky"
-keywords = ["opensky", "api", "async", "client"]
+license = "MIT"
+maintainers = [{ name = "Joost Lekkerkerker", email = "joostlek@outlook.com" }]
+keywords = [
+    "opensky",
+    "api",
+    "async",
+    "client",
+]
 classifiers = [
-  "Development Status :: 5 - Production/Stable",
-  "Framework :: AsyncIO",
-  "Intended Audience :: Developers",
-  "Natural Language :: English",
-  "Programming Language :: Python :: 3.13",
-  "Programming Language :: Python :: 3.14",
-  "Programming Language :: Python :: 3",
-  "Topic :: Software Development :: Libraries :: Python Modules",
+    "Development Status :: 5 - Production/Stable",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-packages = [
-    { include = "python_opensky", from = "src" },
+dependencies = [
+    "aiohttp>=3.0.0",
+    "yarl>=1.6.0",
 ]
 
-[tool.poetry.dependencies]
-python = "^3.13"
-aiohttp = ">=3.0.0"
-yarl = ">=1.6.0"
-
-[tool.poetry.group.dev.dependencies]
-aresponses = "3.0.0"
-codespell = "2.4.2"
-covdefaults = "2.3.0"
-coverage = {version = "7.14.1", extras = ["toml"]}
-mypy = "2.1.0"
-prek = "0.3.9"
-pre-commit-hooks = "6.0.0"
-pylint = "4.0.5"
-pytest = "9.0.3"
-pytest-asyncio = "1.4.0"
-pytest-cov = "7.1.0"
-ruff = "0.15.15"
-safety = "3.8.1"
-yamllint = "1.38.0"
-syrupy = "5.3.1"
-
-[tool.poetry.urls]
+[project.urls]
+Homepage = "https://github.com/joostlek/python-opensky"
+Repository = "https://github.com/joostlek/python-opensky"
+Documentation = "https://github.com/joostlek/python-opensky"
 "Bug Tracker" = "https://github.com/joostlek/python-opensky/issues"
 Changelog = "https://github.com/joostlek/python-opensky/releases"
+
+[dependency-groups]
+dev = [
+    "aresponses==3.0.0",
+    "codespell==2.4.2",
+    "covdefaults==2.3.0",
+    "coverage[toml]==7.14.1",
+    "mypy==2.1.0",
+    "prek==0.3.9",
+    "pre-commit-hooks==6.0.0",
+    "pylint==4.0.5",
+    "pytest==9.0.3",
+    "pytest-asyncio==1.4.0",
+    "pytest-cov==7.1.0",
+    "ruff==0.15.15",
+    "safety==3.8.1",
+    "yamllint==1.38.0",
+    "syrupy==5.3.1",
+]
+
+[tool.uv]
+default-groups = "all"
+
+[tool.hatch.build.targets.sdist]
+include = ["src/python_opensky"]
+
+[tool.hatch.build.targets.wheel]
+include = ["src/python_opensky"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src/python_opensky" = "python_opensky"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.coverage.report]
 show_missing = true
@@ -148,7 +168,3 @@ known-first-party = ["python_opensky"]
 
 [tool.ruff.lint.mccabe]
 max-complexity = 25
-
-[build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core>=1.0.0"]
