@@ -33,6 +33,11 @@ from python_opensky import OpenSky, StatesResponse
 async def main() -> None:
     """Show example of fetching all flight states."""
     async with OpenSky() as opensky:
+        # Optional: authenticate for higher rate limits
+        # await opensky.authenticate(
+        #     client_id="your_client_id",
+        #     client_secret="your_client_secret",
+        # )
         states: StatesResponse = await opensky.get_states()
         print(states)
 
