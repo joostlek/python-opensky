@@ -46,3 +46,6 @@ MIN_LATITUDE = "lamin"
 MAX_LATITUDE = "lamax"
 MIN_LONGITUDE = "lomin"
 MAX_LONGITUDE = "lomax"
+
+TOKEN_URL = "https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token"  # noqa: S105
+TOKEN_REFRESH_MARGIN = 30

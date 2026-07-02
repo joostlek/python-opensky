@@ -2,10 +2,12 @@
 
 import asyncio
 from dataclasses import asdict
+from datetime import UTC, datetime
+from typing import Any
 
 import aiohttp
 import pytest
-from aiohttp import BasicAuth, ClientError
+from aiohttp import ClientError
 from aiohttp.web_request import BaseRequest
 from aresponses import Response, ResponsesMockServer
 from syrupy.assertion import SnapshotAssertion
@@ -22,6 +24,29 @@ from python_opensky.exceptions import OpenSkyUnauthenticatedError
 from . import load_fixture
 
 OPENSKY_URL = "opensky-network.org"
+TOKEN_HOST = "auth.opensky-network.org"  # noqa: S105
+TOKEN_PATH = "/auth/realms/opensky-network/protocol/openid-connect/token"  # noqa: S105
+TOKEN_RESPONSE = '{"access_token": "test-token", "expires_in": 1800}'  # noqa: S105
+
+
+def _add_token_mock(
+    aresponses: ResponsesMockServer,
+    *,
+    repeat: int = 1,
+    status: int = 200,
+) -> None:
+    """Add a token endpoint mock."""
+    aresponses.add(
+        TOKEN_HOST,
+        TOKEN_PATH,
+        "POST",
+        aresponses.Response(
+            status=status,
+            headers={"Content-Type": "application/json"},
+            text=TOKEN_RESPONSE,
+        ),
+        repeat=repeat,
+    )
 
 
 async def test_states(
@@ -73,6 +98,7 @@ async def test_own_states(
     aresponses: ResponsesMockServer,
 ) -> None:
     """Test retrieving own states."""
+    _add_token_mock(aresponses)
     aresponses.add(
         OPENSKY_URL,
         "/api/states/all",
@@ -96,7 +122,8 @@ async def test_own_states(
     async with aiohttp.ClientSession() as session:
         opensky = OpenSky(session=session)
         await opensky.authenticate(
-            BasicAuth(login="test", password="test"),
+            client_id="test_id",
+            client_secret="test_secret",
             contributing_user=True,
         )
         response: StatesResponse = await opensky.get_own_states()
@@ -110,6 +137,7 @@ async def test_unavailable_own_states(
     aresponses: ResponsesMockServer,
 ) -> None:
     """Test retrieving no own states."""
+    _add_token_mock(aresponses)
     aresponses.add(
         OPENSKY_URL,
         "/api/states/all",
@@ -133,7 +161,8 @@ async def test_unavailable_own_states(
     async with aiohttp.ClientSession() as session:
         opensky = OpenSky(session=session)
         await opensky.authenticate(
-            BasicAuth(login="test", password="test"),
+            client_id="test_id",
+            client_secret="test_secret",
             contributing_user=True,
         )
         response: StatesResponse = await opensky.get_own_states()
@@ -236,12 +265,13 @@ async def test_timeout(aresponses: ResponsesMockServer) -> None:
 
 async def test_auth(aresponses: ResponsesMockServer) -> None:
     """Test request authentication."""
+    _add_token_mock(aresponses, repeat=1)
 
     def response_handler(request: BaseRequest) -> Response:
         """Response handler for this test."""
         assert request.headers
         assert request.headers["Authorization"]
-        assert request.headers["Authorization"] == "Basic dGVzdDp0ZXN0"
+        assert request.headers["Authorization"] == "Bearer test-token"
         return aresponses.Response(
             status=200,
             headers={"Content-Type": "application/json"},
@@ -258,7 +288,10 @@ async def test_auth(aresponses: ResponsesMockServer) -> None:
 
     async with aiohttp.ClientSession() as session:
         opensky = OpenSky(session=session)
-        await opensky.authenticate(BasicAuth(login="test", password="test"))
+        await opensky.authenticate(
+            client_id="test_id",
+            client_secret="test_secret",
+        )
         await opensky.get_states()
         await opensky.close()
 
@@ -266,20 +299,23 @@ async def test_auth(aresponses: ResponsesMockServer) -> None:
 async def test_unauthorized(aresponses: ResponsesMockServer) -> None:
     """Test request authentication."""
     aresponses.add(
-        OPENSKY_URL,
-        "/api/states/all",
-        "GET",
+        TOKEN_HOST,
+        TOKEN_PATH,
+        "POST",
         aresponses.Response(
             status=401,
             headers={"Content-Type": "application/json"},
-            text=load_fixture("states.json"),
+            text="{}",
         ),
     )
 
     async with aiohttp.ClientSession() as session:
         opensky = OpenSky(session=session)
         try:
-            await opensky.authenticate(BasicAuth(login="test", password="test"))
+            await opensky.authenticate(
+                client_id="test_id",
+                client_secret="test_secret",
+            )
             pytest.fail("Should've thrown exception")
         except OpenSkyUnauthenticatedError:
             pass
@@ -289,6 +325,7 @@ async def test_unauthorized(aresponses: ResponsesMockServer) -> None:
 
 async def test_user_credits(aresponses: ResponsesMockServer) -> None:
     """Test authenticated user credits."""
+    _add_token_mock(aresponses, repeat=2)
     aresponses.add(
         OPENSKY_URL,
         "/api/states/all",
@@ -303,10 +340,14 @@ async def test_user_credits(aresponses: ResponsesMockServer) -> None:
     async with aiohttp.ClientSession() as session:
         opensky = OpenSky(session=session)
         assert opensky.opensky_credits == 400
-        await opensky.authenticate(BasicAuth(login="test", password="test"))
+        await opensky.authenticate(
+            client_id="test_id",
+            client_secret="test_secret",
+        )
         assert opensky.opensky_credits == 4000
         await opensky.authenticate(
-            BasicAuth(login="test", password="test"),
+            client_id="test_id",
+            client_secret="test_secret",
             contributing_user=True,
         )
         assert opensky.opensky_credits == 8000
@@ -397,3 +438,144 @@ async def test_calculating_credit_usage() -> None:
         max_longitude=10.9,
     )
     assert opensky.calculate_credit_costs(bounding_box) == 4
+
+
+async def test_token_refresh(aresponses: ResponsesMockServer) -> None:
+    """Test that token is refreshed when expired."""
+    _add_token_mock(aresponses, repeat=2)
+    aresponses.add(
+        OPENSKY_URL,
+        "/api/states/all",
+        "GET",
+        aresponses.Response(
+            status=200,
+            headers={"Content-Type": "application/json"},
+            text=load_fixture("states.json"),
+        ),
+        repeat=2,
+    )
+    async with aiohttp.ClientSession() as session:
+        opensky = OpenSky(session=session)
+        await opensky.authenticate(
+            client_id="test_id",
+            client_secret="test_secret",
+        )
+        # Expire the token
+        assert opensky._oauth is not None  # noqa: SLF001
+        opensky._oauth.expires_at = datetime(2020, 1, 1, tzinfo=UTC)  # noqa: SLF001
+        await opensky.get_states()
+        await opensky.close()
+
+
+async def test_token_refresh_new_session(aresponses: ResponsesMockServer) -> None:
+    """Test that _refresh_token creates a session if none exists."""
+    _add_token_mock(aresponses)
+    aresponses.add(
+        OPENSKY_URL,
+        "/api/states/all",
+        "GET",
+        aresponses.Response(
+            status=200,
+            headers={"Content-Type": "application/json"},
+            text=load_fixture("states.json"),
+        ),
+    )
+    async with OpenSky() as opensky:
+        await opensky.authenticate(
+            client_id="test_id",
+            client_secret="test_secret",
+        )
+        assert opensky.session
+
+
+async def test_token_refresh_timeout(aresponses: ResponsesMockServer) -> None:
+    """Test token refresh timeout."""
+
+    async def response_handler(_: BaseRequest) -> Response:
+        await asyncio.sleep(2)
+        return aresponses.Response(body="Timeout")
+
+    aresponses.add(
+        TOKEN_HOST,
+        TOKEN_PATH,
+        "POST",
+        response_handler,
+    )
+
+    async with aiohttp.ClientSession() as session:
+        opensky = OpenSky(session=session, request_timeout=1)
+        with pytest.raises(OpenSkyConnectionError):
+            await opensky.authenticate(
+                client_id="test_id",
+                client_secret="test_secret",
+            )
+        await opensky.close()
+
+
+async def test_token_refresh_connection_error() -> None:
+    """Test token refresh connection error."""
+    async with aiohttp.ClientSession() as session:
+        opensky = OpenSky(session=session)
+        # Patch session.request to raise ClientError
+        original_request = session.request
+
+        async def mock_request(*_args: Any, **_kwargs: Any) -> None:
+            raise ClientError
+
+        session.request = mock_request  # type: ignore[assignment]
+        with pytest.raises(OpenSkyConnectionError):
+            await opensky.authenticate(
+                client_id="test_id",
+                client_secret="test_secret",
+            )
+        session.request = original_request  # type: ignore[assignment]
+        await opensky.close()
+
+
+async def test_token_refresh_server_error(
+    aresponses: ResponsesMockServer,
+) -> None:
+    """Test token refresh with server error response."""
+    aresponses.add(
+        TOKEN_HOST,
+        TOKEN_PATH,
+        "POST",
+        aresponses.Response(
+            status=500,
+            headers={"Content-Type": "application/json"},
+            text="{}",
+        ),
+    )
+
+    async with aiohttp.ClientSession() as session:
+        opensky = OpenSky(session=session)
+        with pytest.raises(OpenSkyConnectionError):
+            await opensky.authenticate(
+                client_id="test_id",
+                client_secret="test_secret",
+            )
+        await opensky.close()
+
+
+async def test_api_returns_401(aresponses: ResponsesMockServer) -> None:
+    """Test that a 401 from the API raises OpenSkyUnauthenticatedError."""
+    _add_token_mock(aresponses)
+    aresponses.add(
+        OPENSKY_URL,
+        "/api/states/all",
+        "GET",
+        aresponses.Response(
+            status=401,
+            headers={"Content-Type": "application/json"},
+            text="{}",
+        ),
+    )
+    async with aiohttp.ClientSession() as session:
+        opensky = OpenSky(session=session)
+        with pytest.raises(OpenSkyUnauthenticatedError):
+            await opensky.authenticate(
+                client_id="test_id",
+                client_secret="test_secret",
+            )
+        assert opensky.is_authenticated is False
+        await opensky.close()
