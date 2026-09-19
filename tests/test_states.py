@@ -2,13 +2,14 @@
 
 import asyncio
 from dataclasses import asdict
+from typing import Any
 
 import aiohttp
 import pytest
-from aiohttp import BasicAuth, ClientError
-from aiohttp.web_request import BaseRequest
-from aresponses import Response, ResponsesMockServer
+from aiohttp import BasicAuth
+from aiointercept import CallbackResult, aiointercept
 from syrupy.assertion import SnapshotAssertion
+from yarl import URL
 
 from python_opensky import (
     BoundingBox,
@@ -21,23 +22,29 @@ from python_opensky.exceptions import OpenSkyUnauthenticatedError
 
 from . import load_fixture
 
-OPENSKY_URL = "opensky-network.org"
+OPENSKY_URL = "https://opensky-network.org/api"
+STATES_URL = f"{OPENSKY_URL}/states/all?time=0&extended=true"
+OWN_STATES_URL = f"{OPENSKY_URL}/states/own?time=0"
+BOUNDING_BOX_STATES_URL = (
+    f"{OPENSKY_URL}/states/all?time=0&extended=true&lamin=0&lamax=0&lomin=0&lomax=0"
+)
+# The authenticate() call probes the API with BoundingBox(0.0, 0.0, 1.0, 1.0).
+AUTH_STATES_URL = (
+    f"{OPENSKY_URL}/states/all"
+    "?time=0&extended=true&lamin=0.0&lamax=0.0&lomin=1.0&lomax=1.0"
+)
 
 
 async def test_states(
-    aresponses: ResponsesMockServer,
+    responses: aiointercept,
     snapshot: SnapshotAssertion,
 ) -> None:
     """Test retrieving states."""
-    aresponses.add(
-        OPENSKY_URL,
-        "/api/states/all",
-        "GET",
-        aresponses.Response(
-            status=200,
-            headers={"Content-Type": "application/json"},
-            text=load_fixture("states.json"),
-        ),
+    responses.get(
+        STATES_URL,
+        status=200,
+        content_type="application/json",
+        body=load_fixture("states.json"),
     )
     async with aiohttp.ClientSession() as session:
         opensky = OpenSky(session=session)
@@ -47,18 +54,14 @@ async def test_states(
 
 
 async def test_unavailable_states(
-    aresponses: ResponsesMockServer,
+    responses: aiointercept,
 ) -> None:
     """Test retrieving no states."""
-    aresponses.add(
-        OPENSKY_URL,
-        "/api/states/all",
-        "GET",
-        aresponses.Response(
-            status=200,
-            headers={"Content-Type": "application/json"},
-            text=load_fixture("unavailable_states.json"),
-        ),
+    responses.get(
+        STATES_URL,
+        status=200,
+        content_type="application/json",
+        body=load_fixture("unavailable_states.json"),
     )
     async with aiohttp.ClientSession() as session:
         opensky = OpenSky(session=session)
@@ -70,28 +73,20 @@ async def test_unavailable_states(
 
 
 async def test_own_states(
-    aresponses: ResponsesMockServer,
+    responses: aiointercept,
 ) -> None:
     """Test retrieving own states."""
-    aresponses.add(
-        OPENSKY_URL,
-        "/api/states/all",
-        "GET",
-        aresponses.Response(
-            status=200,
-            headers={"Content-Type": "application/json"},
-            text=load_fixture("states.json"),
-        ),
+    responses.get(
+        AUTH_STATES_URL,
+        status=200,
+        content_type="application/json",
+        body=load_fixture("states.json"),
     )
-    aresponses.add(
-        OPENSKY_URL,
-        "/api/states/own",
-        "GET",
-        aresponses.Response(
-            status=200,
-            headers={"Content-Type": "application/json"},
-            text=load_fixture("states.json"),
-        ),
+    responses.get(
+        OWN_STATES_URL,
+        status=200,
+        content_type="application/json",
+        body=load_fixture("states.json"),
     )
     async with aiohttp.ClientSession() as session:
         opensky = OpenSky(session=session)
@@ -107,28 +102,20 @@ async def test_own_states(
 
 
 async def test_unavailable_own_states(
-    aresponses: ResponsesMockServer,
+    responses: aiointercept,
 ) -> None:
     """Test retrieving no own states."""
-    aresponses.add(
-        OPENSKY_URL,
-        "/api/states/all",
-        "GET",
-        aresponses.Response(
-            status=200,
-            headers={"Content-Type": "application/json"},
-            text=load_fixture("states.json"),
-        ),
+    responses.get(
+        AUTH_STATES_URL,
+        status=200,
+        content_type="application/json",
+        body=load_fixture("states.json"),
     )
-    aresponses.add(
-        OPENSKY_URL,
-        "/api/states/own",
-        "GET",
-        aresponses.Response(
-            status=200,
-            headers={"Content-Type": "application/json"},
-            text=load_fixture("unavailable_states.json"),
-        ),
+    responses.get(
+        OWN_STATES_URL,
+        status=200,
+        content_type="application/json",
+        body=load_fixture("unavailable_states.json"),
     )
     async with aiohttp.ClientSession() as session:
         opensky = OpenSky(session=session)
@@ -144,19 +131,14 @@ async def test_unavailable_own_states(
 
 
 async def test_states_with_bounding_box(
-    aresponses: ResponsesMockServer,
+    responses: aiointercept,
 ) -> None:
     """Test retrieving states."""
-    aresponses.add(
-        OPENSKY_URL,
-        "/api/states/all?time=0&extended=true&lamin=0&lamax=0&lomin=0&lomax=0",
-        "GET",
-        aresponses.Response(
-            status=200,
-            headers={"Content-Type": "application/json"},
-            text=load_fixture("states.json"),
-        ),
-        match_querystring=True,
+    responses.get(
+        BOUNDING_BOX_STATES_URL,
+        status=200,
+        content_type="application/json",
+        body=load_fixture("states.json"),
     )
     async with aiohttp.ClientSession() as session:
         opensky = OpenSky(session=session)
@@ -171,18 +153,14 @@ async def test_states_with_bounding_box(
 
 
 async def test_credit_usage(
-    aresponses: ResponsesMockServer,
+    responses: aiointercept,
 ) -> None:
     """Test credit usage."""
-    aresponses.add(
-        OPENSKY_URL,
-        "/api/states/all",
-        "GET",
-        aresponses.Response(
-            status=200,
-            headers={"Content-Type": "application/json"},
-            text=load_fixture("states.json"),
-        ),
+    responses.get(
+        STATES_URL,
+        status=200,
+        content_type="application/json",
+        body=load_fixture("states.json"),
     )
     async with aiohttp.ClientSession() as session:
         opensky = OpenSky(session=session)
@@ -192,18 +170,14 @@ async def test_credit_usage(
 
 
 async def test_new_session(
-    aresponses: ResponsesMockServer,
+    responses: aiointercept,
 ) -> None:
     """Test that it creates a new session if not given one."""
-    aresponses.add(
-        OPENSKY_URL,
-        "/api/states/all",
-        "GET",
-        aresponses.Response(
-            status=200,
-            headers={"Content-Type": "application/json"},
-            text=load_fixture("states.json"),
-        ),
+    responses.get(
+        STATES_URL,
+        status=200,
+        content_type="application/json",
+        body=load_fixture("states.json"),
     )
     async with OpenSky() as opensky:
         assert not opensky.session
@@ -211,21 +185,16 @@ async def test_new_session(
         assert opensky.session
 
 
-async def test_timeout(aresponses: ResponsesMockServer) -> None:
+async def test_timeout(responses: aiointercept) -> None:
     """Test request timeout."""
 
     # Faking a timeout by sleeping
-    async def response_handler(_: BaseRequest) -> Response:
+    async def response_handler(_url: URL, **_kwargs: Any) -> CallbackResult:
         """Response handler for this test."""
         await asyncio.sleep(2)
-        return aresponses.Response(body="Goodmorning!")
+        return CallbackResult(body="Goodmorning!")
 
-    aresponses.add(
-        OPENSKY_URL,
-        "/api/states/all",
-        "GET",
-        response_handler,
-    )
+    responses.get(STATES_URL, callback=response_handler)
 
     async with aiohttp.ClientSession() as session:
         opensky = OpenSky(session=session, request_timeout=1)
@@ -234,27 +203,22 @@ async def test_timeout(aresponses: ResponsesMockServer) -> None:
         await opensky.close()
 
 
-async def test_auth(aresponses: ResponsesMockServer) -> None:
+async def test_auth(responses: aiointercept) -> None:
     """Test request authentication."""
 
-    def response_handler(request: BaseRequest) -> Response:
+    def response_handler(_url: URL, **kwargs: Any) -> CallbackResult:
         """Response handler for this test."""
-        assert request.headers
-        assert request.headers["Authorization"]
-        assert request.headers["Authorization"] == "Basic dGVzdDp0ZXN0"
-        return aresponses.Response(
+        headers = kwargs["headers"]
+        assert headers["Authorization"]
+        assert headers["Authorization"] == "Basic dGVzdDp0ZXN0"
+        return CallbackResult(
             status=200,
-            headers={"Content-Type": "application/json"},
-            text=load_fixture("states.json"),
+            content_type="application/json",
+            body=load_fixture("states.json"),
         )
 
-    aresponses.add(
-        OPENSKY_URL,
-        "/api/states/all",
-        "GET",
-        response_handler,
-        repeat=2,
-    )
+    responses.get(AUTH_STATES_URL, callback=response_handler)
+    responses.get(STATES_URL, callback=response_handler)
 
     async with aiohttp.ClientSession() as session:
         opensky = OpenSky(session=session)
@@ -263,17 +227,13 @@ async def test_auth(aresponses: ResponsesMockServer) -> None:
         await opensky.close()
 
 
-async def test_unauthorized(aresponses: ResponsesMockServer) -> None:
+async def test_unauthorized(responses: aiointercept) -> None:
     """Test request authentication."""
-    aresponses.add(
-        OPENSKY_URL,
-        "/api/states/all",
-        "GET",
-        aresponses.Response(
-            status=401,
-            headers={"Content-Type": "application/json"},
-            text=load_fixture("states.json"),
-        ),
+    responses.get(
+        AUTH_STATES_URL,
+        status=401,
+        content_type="application/json",
+        body=load_fixture("states.json"),
     )
 
     async with aiohttp.ClientSession() as session:
@@ -287,17 +247,13 @@ async def test_unauthorized(aresponses: ResponsesMockServer) -> None:
         await opensky.close()
 
 
-async def test_user_credits(aresponses: ResponsesMockServer) -> None:
+async def test_user_credits(responses: aiointercept) -> None:
     """Test authenticated user credits."""
-    aresponses.add(
-        OPENSKY_URL,
-        "/api/states/all",
-        "GET",
-        aresponses.Response(
-            status=200,
-            headers={"Content-Type": "application/json"},
-            text=load_fixture("states.json"),
-        ),
+    responses.get(
+        AUTH_STATES_URL,
+        status=200,
+        content_type="application/json",
+        body=load_fixture("states.json"),
         repeat=2,
     )
     async with aiohttp.ClientSession() as session:
@@ -314,19 +270,9 @@ async def test_user_credits(aresponses: ResponsesMockServer) -> None:
         await opensky.close()
 
 
-async def test_request_error(aresponses: ResponsesMockServer) -> None:
+async def test_request_error(responses: aiointercept) -> None:
     """Test request error."""
-
-    async def response_handler(_: BaseRequest) -> Response:
-        """Response handler for this test."""
-        raise ClientError
-
-    aresponses.add(
-        OPENSKY_URL,
-        "/api/states/all",
-        "GET",
-        response_handler,
-    )
+    responses.get(STATES_URL, exception=True)
 
     async with aiohttp.ClientSession() as session:
         opensky = OpenSky(session=session)
@@ -336,18 +282,14 @@ async def test_request_error(aresponses: ResponsesMockServer) -> None:
 
 
 async def test_unexpected_server_response(
-    aresponses: ResponsesMockServer,
+    responses: aiointercept,
 ) -> None:
     """Test handling a server error."""
-    aresponses.add(
-        OPENSKY_URL,
-        "/api/states/all",
-        "GET",
-        aresponses.Response(
-            status=200,
-            headers={"Content-Type": "plain/text"},
-            text="Yes",
-        ),
+    responses.get(
+        STATES_URL,
+        status=200,
+        content_type="plain/text",
+        body="Yes",
     )
 
     async with aiohttp.ClientSession() as session:
