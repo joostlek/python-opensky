@@ -1,7 +1,6 @@
 """Tests for the OpenSky Library."""
 
 import pytest
-from _pytest.python_api import approx
 
 from python_opensky import (
     BoundingBox,
@@ -79,13 +78,17 @@ async def test_calculating_bounding_box(
 ) -> None:
     """Test calculating bounding box."""
     res_bounding_box = OpenSky.get_bounding_box(latitude, longitude, radius)
-    assert res_bounding_box.min_latitude == approx(bounding_box.min_latitude, PRECISION)
-    assert res_bounding_box.max_latitude == approx(bounding_box.max_latitude, PRECISION)
-    assert res_bounding_box.min_longitude == approx(
+    assert res_bounding_box.min_latitude == pytest.approx(
+        bounding_box.min_latitude, PRECISION
+    )
+    assert res_bounding_box.max_latitude == pytest.approx(
+        bounding_box.max_latitude, PRECISION
+    )
+    assert res_bounding_box.min_longitude == pytest.approx(
         bounding_box.min_longitude,
         PRECISION,
     )
-    assert res_bounding_box.max_longitude == approx(
+    assert res_bounding_box.max_longitude == pytest.approx(
         bounding_box.max_longitude,
         PRECISION,
     )
